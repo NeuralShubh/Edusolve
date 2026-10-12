@@ -206,3 +206,31 @@ label { font-size: 13px; font-weight: 700; color: var(--muted); }
   .search-row { flex-direction: column; }
   .hero-stats { gap: 16px; }
 }
+
+/* ---------- SVG icon system ---------- */
+.icon { display: inline-flex; align-items: center; justify-content: center; flex: none; }
+.icon svg { display: block; }
+.with-icon { display: inline-flex; align-items: center; gap: 8px; }
+h2.with-icon, h3.with-icon, h4.with-icon { display: flex; }
+.btn .icon, .pill .icon, .opt .icon { vertical-align: -2px; }
+.lang-btn, .nav-cta { display: inline-flex; align-items: center; gap: 7px; }
+.badge, .demo-pill, .float-chip { display: inline-flex; align-items: center; gap: 7px; }
+.float-chip { display: inline-flex; }
+.cat-icon, .sol-icon, .feat-icon, .avatar, .logo-mark { color: var(--blue-dark); }
+.sol-icon { color: var(--violet); }
+.feat-icon { color: var(--violet); }
+.avatar { color: #fff; }
+.logo-mark { color: #fff; }
+.tool-nav button .with-icon { gap: 7px; }
+
+/* ---------- Premium polish ---------- */
+::selection { background: #c7d7fe; color: #1e1b4b; }
+:focus-visible { outline: 2px solid var(--violet); outline-offset: 2px; }
+.chat-body::-webkit-scrollbar { width: 8px; }
+.chat-body::-webkit-scrollbar-thumb { background: #c7d7fe; border-radius: 999px; }
+.chat-body::-webkit-scrollbar-track { background: transparent; }
+.card h3 { letter-spacing: -0.01em; }
+.solution-head h3 { margin: 0; letter-spacing: -0.01em; }
+.solution-head > div { flex: 1; }
+.list-item .icon { color: var(--blue); }
+.result .with-icon { gap: 6px; font-weight: 600; }

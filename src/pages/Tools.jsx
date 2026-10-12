@@ -1,14 +1,15 @@
 import { useState } from 'react'
 import { useLang } from '../context/LanguageContext'
 import { STRINGS } from '../i18n/translations'
+import { Icon } from '../components/icons'
 
 const TOOLS = [
-  { id: 'docprep', en: '📋 Document preparation checklist', mr: '📋 कागदपत्र तयारी यादी' },
-  { id: 'filecheck', en: '📦 File extension & size checker', mr: '📦 फाइल प्रकार व आकार तपासणी' },
-  { id: 'photo', en: '🖼️ Photo & signature guidance + resizer', mr: '🖼️ फोटो व सही मार्गदर्शन + रिसायझर' },
-  { id: 'formfill', en: '📝 Form-filling checklist', mr: '📝 फॉर्म भरणे यादी' },
-  { id: 'presubmit', en: '✅ Pre-submission verification', mr: '✅ सबमिशनपूर्व पडताळणी' },
-  { id: 'required', en: '📁 Required-document checklist', mr: '📁 आवश्यक कागदपत्र यादी' },
+  { id: 'docprep', icon: 'folder', en: 'Document preparation checklist', mr: 'कागदपत्र तयारी यादी' },
+  { id: 'filecheck', icon: 'box', en: 'File extension and size checker', mr: 'फाइल प्रकार व आकार तपासणी' },
+  { id: 'photo', icon: 'photo', en: 'Photo and signature guidance + resizer', mr: 'फोटो व सही मार्गदर्शन + रिसायझर' },
+  { id: 'formfill', icon: 'edit', en: 'Form-filling checklist', mr: 'फॉर्म भरणे यादी' },
+  { id: 'presubmit', icon: 'checkcircle', en: 'Pre-submission verification', mr: 'सबमिशनपूर्व पडताळणी' },
+  { id: 'required', icon: 'listcheck', en: 'Required-document checklist', mr: 'आवश्यक कागदपत्र यादी' },
 ]
 
 const LISTS = {
@@ -55,7 +56,7 @@ function Checklist({ id, lang }) {
   return (
     <div>
       <div className="progress"><div style={{ width: pct + '%' }} /></div>
-      <p className="muted small">{done.length}/{items.length} done — {pct}%</p>
+      <p className="muted small">{done.length}/{items.length} done ({pct}%)</p>
       {items.map((it, i) => (
         <label key={i} className="check"><input type="checkbox" checked={done.includes(i)} onChange={() => toggle(i)} /> {it[lang] || it.en}</label>
       ))}
@@ -67,10 +68,10 @@ function FileChecker({ lang }) {
   const [file, setFile] = useState(null)
   const [preset, setPreset] = useState('pdf200')
   const presets = {
-    pdf200: { label: 'PDF ≤ 200 KB (scholarship docs)', exts: ['pdf'], maxKB: 200 },
-    img50: { label: 'Photo JPG ≤ 50 KB', exts: ['jpg', 'jpeg'], maxKB: 50 },
-    sign30: { label: 'Signature JPG ≤ 30 KB', exts: ['jpg', 'jpeg'], maxKB: 30 },
-    img200: { label: 'Image ≤ 200 KB (JPG/PNG)', exts: ['jpg', 'jpeg', 'png'], maxKB: 200 },
+    pdf200: { label: 'PDF, max 200 KB (scholarship docs)', exts: ['pdf'], maxKB: 200 },
+    img50: { label: 'Photo JPG, max 50 KB', exts: ['jpg', 'jpeg'], maxKB: 50 },
+    sign30: { label: 'Signature JPG, max 30 KB', exts: ['jpg', 'jpeg'], maxKB: 30 },
+    img200: { label: 'Image, max 200 KB (JPG/PNG)', exts: ['jpg', 'jpeg', 'png'], maxKB: 200 },
   }
   const p = presets[preset]
   let verdict = null
@@ -90,10 +91,11 @@ function FileChecker({ lang }) {
       {!file && <p className="muted small" style={{ marginTop: 12 }}>Select a file on your device. It is checked locally in your browser only.</p>}
       {verdict && (
         <div className={'result ' + (verdict.ok ? 'ok' : 'bad')}>
-          <b>{file.name}</b> — {(verdict.kb).toFixed(1)} KB, .{verdict.ext}<br />
-          {verdict.okExt ? '✅ Format OK' : `❌ Format must be: ${p.exts.join('/').toUpperCase()}`} • {verdict.okSize ? '✅ Size OK' : `❌ Must be ≤ ${p.maxKB} KB`}<br />
-          {verdict.ok ? (lang === 'mr' ? '🎉 ही फाइल अपलोडसाठी तयार आहे.' : '🎉 This file is ready to upload.') :
-            (lang === 'mr' ? '💡 टीप: 150 DPI ब्लॅक-व्हाइट पुन्हा स्कॅन करा किंवा Photo resizer वापरा.' : '💡 Tip: re-scan at 150 DPI black-white, or use the Photo resizer below.')}
+          <b>{file.name}</b> ({(verdict.kb).toFixed(1)} KB, .{verdict.ext})<br />
+          <span className="with-icon"><Icon name={verdict.okExt ? 'check' : 'x'} size={15} /> {verdict.okExt ? 'Format OK' : `Format must be: ${p.exts.join('/').toUpperCase()}`}</span><br />
+          <span className="with-icon"><Icon name={verdict.okSize ? 'check' : 'x'} size={15} /> {verdict.okSize ? 'Size OK' : `Must be max ${p.maxKB} KB`}</span><br />
+          {verdict.ok ? (lang === 'mr' ? 'ही फाइल अपलोडसाठी तयार आहे.' : 'This file is ready to upload.') :
+            (lang === 'mr' ? 'टीप: 150 DPI ब्लॅक-व्हाइट पुन्हा स्कॅन करा किंवा Photo resizer वापरा.' : 'Tip: re-scan at 150 DPI black-white, or use the Photo resizer below.')}
         </div>
       )}
     </div>
@@ -132,20 +134,20 @@ function PhotoResizer({ lang }) {
   }
   return (
     <div>
-      <p className="muted small">{lang === 'mr' ? 'फोटो: पांढरी पार्श्वभूमी, दिवसाचा प्रकाश. सही: कोऱ्या कागदावर काळा पेन. फाइल निवडा, आकार ठरवा, Resize दाबा, नंतर डाउनलोड करा — सर्व काही तुमच्या ब्राउझरमध्येच होते.' : 'Photo: white background, daylight. Signature: black pen on plain paper. Choose file, set size, press Resize, then Download — everything happens in your browser.'}</p>
+      <p className="muted small">{lang === 'mr' ? 'फोटो: पांढरी पार्श्वभूमी, दिवसाचा प्रकाश. सही: कोऱ्या कागदावर काळा पेन. फाइल निवडा, आकार ठरवा, Resize दाबा, नंतर डाउनलोड करा. सर्व काही तुमच्या ब्राउझरमध्येच होते.' : 'Photo: white background, daylight. Signature: black pen on plain paper. Choose file, set size, press Resize, then Download. Everything happens in your browser.'}</p>
       <div className="row">
         <input type="file" accept="image/*" onChange={(e) => onFile(e.target.files?.[0])} />
         <div><label>Width px</label><br /><input type="number" value={w} onChange={(e) => setW(+e.target.value || 200)} style={{ width: 90 }} /></div>
         <div><label>Height px</label><br /><input type="number" value={h} onChange={(e) => setH(+e.target.value || 230)} style={{ width: 90 }} /></div>
         <div><label>Quality</label><br /><select value={quality} onChange={(e) => setQuality(+e.target.value)}><option value={0.6}>0.6 (smaller)</option><option value={0.8}>0.8</option><option value={0.92}>0.92 (clearer)</option></select></div>
-        <button className="btn primary small" disabled={!src} onClick={resize}>✂️ Resize</button>
+        <button className="btn primary small" disabled={!src} onClick={resize}><Icon name="scissors" size={14} /> Resize</button>
       </div>
       {src && <div><p className="muted small">Original:</p><img className="preview-img" src={src} alt="original" /></div>}
       {out && (
         <div className="result ok">
-          ✅ Resized to {w}×{h}px — ~{out.kb.toFixed(1)} KB (real output, measured locally).<br />
+          <span className="with-icon"><Icon name="check" size={15} /> Resized to {w}x{h}px, about {out.kb.toFixed(1)} KB (real output, measured locally).</span><br />
           <img className="preview-img" src={out.url} alt="resized" /><br /><br />
-          <a className="btn primary small" href={out.url} download={`edusolve-${w}x${h}.jpg`}>⬇️ Download resized JPG</a>
+          <a className="btn primary small" href={out.url} download={`edusolve-${w}x${h}.jpg`}><Icon name="download" size={14} /> Download resized JPG</a>
         </div>
       )}
     </div>
@@ -171,15 +173,20 @@ export default function Tools() {
   const { lang } = useLang()
   const t = STRINGS[lang]
   const [active, setActive] = useState('docprep')
+  const current = TOOLS.find((x) => x.id === active)
   return (
     <div>
-      <h2 style={{ margin: '4px 0' }}>🧰 {t.tools_title}</h2>
+      <h2 className="with-icon" style={{ margin: '4px 0' }}><Icon name="wrench" size={26} /> {t.tools_title}</h2>
       <p className="muted">{t.tools_sub}</p>
       <div className="tool-nav">
-        {TOOLS.map((tool) => <button key={tool.id} className={active === tool.id ? 'active' : ''} onClick={() => setActive(tool.id)}>{tool[lang] || tool.en}</button>)}
+        {TOOLS.map((tool) => (
+          <button key={tool.id} className={active === tool.id ? 'active' : ''} onClick={() => setActive(tool.id)}>
+            <span className="with-icon"><Icon name={tool.icon} size={15} /> {tool[lang] || tool.en}</span>
+          </button>
+        ))}
       </div>
       <div className="card">
-        <h3 style={{ marginTop: 0 }}>{TOOLS.find((x) => x.id === active)?.[lang]}</h3>
+        <h3 className="with-icon" style={{ marginTop: 0 }}><Icon name={current.icon} size={20} /> {current[lang]}</h3>
         {active === 'docprep' && <Checklist id="docprep" lang={lang} />}
         {active === 'filecheck' && <FileChecker lang={lang} />}
         {active === 'photo' && <PhotoResizer lang={lang} />}

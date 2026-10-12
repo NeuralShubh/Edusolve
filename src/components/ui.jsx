@@ -1,11 +1,12 @@
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useLang } from '../context/LanguageContext'
 import { STRINGS } from '../i18n/translations'
+import { Icon } from './icons'
 
 export function Logo() {
   return (
     <Link to="/" className="logo">
-      <span className="logo-mark">E</span>
+      <span className="logo-mark"><Icon name="gradcap" size={22} strokeWidth={2.2} /></span>
       <span className="logo-text">EduSolve <b>AI</b></span>
     </Link>
   )
@@ -29,9 +30,9 @@ export function Navbar() {
         </nav>
         <div className="nav-actions">
           <button className="lang-btn" onClick={toggle} title="Switch language">
-            🌐 {lang === 'en' ? 'मराठी' : 'English'}
+            <Icon name="languages" size={15} /> {lang === 'en' ? 'मराठी' : 'English'}
           </button>
-          <button className="nav-cta" onClick={() => nav('/solver')}>🚀 {t.start_solving}</button>
+          <button className="nav-cta" onClick={() => nav('/solver')}><Icon name="rocket" size={15} /> {t.start_solving}</button>
           <MobileMenu t={t} toggle={toggle} lang={lang} />
         </div>
       </div>
@@ -46,7 +47,7 @@ function MobileMenu({ t, toggle, lang }) {
   const go = (p) => { setOpen(false); nav(p) }
   return (
     <div className="mobile-wrap">
-      <button className="hamburger" onClick={() => setOpen(!open)} aria-label="Menu">☰</button>
+      <button className="hamburger" onClick={() => setOpen(!open)} aria-label="Menu"><Icon name="menu" size={20} /></button>
       {open && (
         <div className="mobile-menu">
           <button onClick={() => go('/')}>{t.nav_home}</button>
@@ -54,7 +55,7 @@ function MobileMenu({ t, toggle, lang }) {
           <button onClick={() => go('/solver')}>{t.nav_solver}</button>
           <button onClick={() => go('/tools')}>{t.nav_tools}</button>
           <button onClick={() => go('/about')}>{t.nav_about}</button>
-          <button onClick={() => { toggle(); setOpen(false) }}>🌐 {lang === 'en' ? 'मराठी' : 'English'}</button>
+          <button onClick={() => { toggle(); setOpen(false) }}>{lang === 'en' ? 'मराठी' : 'English'}</button>
         </div>
       )}
     </div>
@@ -70,14 +71,14 @@ export function Footer() {
         <div>
           <div className="footer-logo">EduSolve <b>AI</b></div>
           <p className="muted">{t.footer_tag}</p>
-          <p className="demo-pill">⚠️ {t.demo_note}</p>
+          <p className="demo-pill"><Icon name="alert" size={14} /> {t.demo_note}</p>
         </div>
         <div>
-          <h4>🆘 {t.footer_help}</h4>
+          <h4 className="with-icon"><Icon name="help" size={17} /> {t.footer_help}</h4>
           <p className="muted small">{t.footer_help_text}</p>
         </div>
         <div>
-          <h4>🔒 {t.footer_privacy}</h4>
+          <h4 className="with-icon"><Icon name="shield" size={17} /> {t.footer_privacy}</h4>
           <p className="muted small">{t.footer_privacy_text}</p>
         </div>
       </div>
@@ -99,7 +100,7 @@ export function Layout({ children }) {
 export function CategoryCard({ icon, title, desc, onClick, active }) {
   return (
     <button className={'cat-card' + (active ? ' active' : '')} onClick={onClick}>
-      <span className="cat-icon">{icon}</span>
+      <span className="cat-icon"><Icon name={icon} size={24} /></span>
       <span className="cat-title">{title}</span>
       <span className="cat-desc">{desc}</span>
     </button>
@@ -113,35 +114,37 @@ export function SolutionCard({ solution, onSolved, onUnsolved, saved, onSave }) 
   return (
     <div className="solution">
       <div className="solution-head">
-        <span className="sol-icon">{solution.icon}</span>
+        <span className="sol-icon"><Icon name={solution.icon} size={26} /></span>
         <div>
           <div className="muted small">{lang === 'mr' ? 'ओळखलेली समस्या' : 'Problem identified'}</div>
           <h3>{solution.title}</h3>
         </div>
-        <button className={'btn small' + (saved ? ' secondary' : '')} onClick={onSave}>{saved ? `✓ ${t.saved_label}` : `♡ ${t.save}`}</button>
+        <button className={'btn small' + (saved ? ' secondary' : '')} onClick={onSave}>
+          <Icon name={saved ? 'bookmark' : 'heart'} size={14} /> {saved ? t.saved_label : t.save}
+        </button>
       </div>
       <div className="sol-grid">
         <div className="sol-block">
-          <h4>🔍 {lang === 'mr' ? 'संभाव्य कारणे' : 'Possible causes'}</h4>
+          <h4 className="with-icon"><Icon name="search" size={16} /> {lang === 'mr' ? 'संभाव्य कारणे' : 'Possible causes'}</h4>
           <ul>{solution.causes.map((c, i) => <li key={i}>{c}</li>)}</ul>
         </div>
         <div className="sol-block highlight">
-          <h4>🪜 {lang === 'mr' ? 'टप्प्याटप्प्याने उपाय' : 'Step-by-step solution'}</h4>
+          <h4 className="with-icon"><Icon name="listcheck" size={16} /> {lang === 'mr' ? 'टप्प्याटप्प्याने उपाय' : 'Step-by-step solution'}</h4>
           <ol>{solution.steps.map((s, i) => <li key={i}>{s}</li>)}</ol>
         </div>
         <div className="sol-block">
-          <h4>🛡️ {lang === 'mr' ? 'प्रतिबंध टिपा' : 'Prevention tips'}</h4>
+          <h4 className="with-icon"><Icon name="shield" size={16} /> {lang === 'mr' ? 'प्रतिबंध टिपा' : 'Prevention tips'}</h4>
           <ul>{solution.prevention.map((p, i) => <li key={i}>{p}</li>)}</ul>
         </div>
         <div className="sol-block">
-          <h4>🔁 {lang === 'mr' ? 'पर्यायी उपाय' : 'Alternative solution'}</h4>
+          <h4 className="with-icon"><Icon name="refresh" size={16} /> {lang === 'mr' ? 'पर्यायी उपाय' : 'Alternative solution'}</h4>
           <p>{solution.alternative}</p>
         </div>
       </div>
       {(onSolved || onUnsolved) && (
         <div className="sol-feedback">
-          <button className="btn primary" onClick={onSolved}>✅ {t.solved}</button>
-          <button className="btn" onClick={onUnsolved}>❌ {t.not_solved}</button>
+          <button className="btn primary" onClick={onSolved}><Icon name="check" size={16} /> {t.solved}</button>
+          <button className="btn" onClick={onUnsolved}><Icon name="x" size={16} /> {t.not_solved}</button>
         </div>
       )}
     </div>

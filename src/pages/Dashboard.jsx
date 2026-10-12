@@ -5,6 +5,7 @@ import { STRINGS } from '../i18n/translations'
 import { CATEGORIES } from '../data/categories'
 import { buildSolution } from '../engine/solverEngine'
 import { CategoryCard, SolutionCard } from '../components/ui'
+import { Icon } from '../components/icons'
 
 function load(key, fallback) {
   try { const v = JSON.parse(localStorage.getItem(key)); return v ?? fallback } catch { return fallback }
@@ -64,14 +65,16 @@ export default function Dashboard() {
 
   const askAI = () => nav('/solver' + (query.trim() ? `?q=${encodeURIComponent(query.trim())}` : ''))
 
+  const catById = (id) => CATEGORIES.find((x) => x.id === id)
+
   return (
     <div>
       <div className="dash-head">
-        <h2 style={{ margin: 0 }}>👋 {t.welcome}</h2>
+        <h2 className="with-icon" style={{ margin: 0 }}><Icon name="sparkles" size={24} /> {t.welcome}</h2>
         <p className="muted">{t.dash_sub}</p>
         <div className="search-row">
           <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t.search_ph} onKeyDown={(e) => e.key === 'Enter' && askAI()} />
-          <button className="btn primary" onClick={askAI}>🤖 {t.ask_ai}</button>
+          <button className="btn primary" onClick={askAI}><Icon name="chat" size={16} /> {t.ask_ai}</button>
         </div>
         <div className="pill-list">
           {['OTP', 'payment failed', 'photo upload', 'form not submitting', 'file too large'].map((s) => (
@@ -81,7 +84,7 @@ export default function Dashboard() {
       </div>
 
       <div className="section">
-        <h2>📚 {lang === 'mr' ? 'समस्या प्रकार (१२)' : 'Problem categories (12)'}</h2>
+        <h2 className="with-icon"><Icon name="grid" size={24} /> {lang === 'mr' ? 'समस्या प्रकार (१२)' : 'Problem categories (12)'}</h2>
         <p className="sub">{t.popular_sub}</p>
         <div className="grid cats">
           {filtered.map((c) => (
@@ -95,32 +98,32 @@ export default function Dashboard() {
       {activeSolution && (
         <div className="section">
           <SolutionCard solution={activeSolution} saved={isSaved} onSave={toggleSave}
-            onSolved={() => alert(lang === 'mr' ? 'छान! 🎉 अभिप्राय नोंदवला.' : 'Great! 🎉 Feedback noted.')}
+            onSolved={() => alert(lang === 'mr' ? 'छान! अभिप्राय नोंदवला.' : 'Great! Feedback noted.')}
             onUnsolved={() => nav(`/solver?q=${encodeURIComponent(activeSolution.title)}`)} />
         </div>
       )}
 
       <div className="section grid cols3">
         <div className="card">
-          <h3>🕘 {t.recent}</h3>
+          <h3 className="with-icon"><Icon name="history" size={18} /> {t.recent}</h3>
           {recent.length === 0 ? <p className="muted small">{t.empty_recent}</p> :
             recent.map((r) => {
-              const c = CATEGORIES.find((x) => x.id === r.id)
+              const c = catById(r.id)
               if (!c) return null
-              return <div key={r.id} className="list-item"><span>{c.icon}</span><button className="pill" onClick={() => openCat(r.id)}>{c.title[lang] || c.title.en}</button></div>
+              return <div key={r.id} className="list-item"><Icon name={c.icon} size={17} /><button className="pill" onClick={() => openCat(r.id)}>{c.title[lang] || c.title.en}</button></div>
             })}
         </div>
         <div className="card">
-          <h3>💾 {t.saved}</h3>
+          <h3 className="with-icon"><Icon name="bookmark" size={18} /> {t.saved}</h3>
           {savedIds.length === 0 ? <p className="muted small">{t.empty_saved}</p> :
             savedIds.map((id) => {
-              const c = CATEGORIES.find((x) => x.id === id)
+              const c = catById(id)
               if (!c) return null
-              return <div key={id} className="list-item"><span>{c.icon}</span><button className="pill" onClick={() => openCat(id)}>{c.title[lang] || c.title.en}</button></div>
+              return <div key={id} className="list-item"><Icon name={c.icon} size={17} /><button className="pill" onClick={() => openCat(id)}>{c.title[lang] || c.title.en}</button></div>
             })}
         </div>
         <div className="card">
-          <h3>✅ {t.progress} — {progress}%</h3>
+          <h3 className="with-icon"><Icon name="listcheck" size={18} /> {t.progress} ({progress}%)</h3>
           <div className="progress"><div style={{ width: progress + '%' }} /></div>
           {DASH_CHECKS.map((c, i) => (
             <label key={i} className="check"><input type="checkbox" checked={!!checks[i]} onChange={() => toggleCheck(i)} /> {c[lang] || c.en}</label>
