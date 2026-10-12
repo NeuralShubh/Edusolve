@@ -6,6 +6,7 @@ import { CATEGORIES } from '../data/categories'
 import { buildSolution } from '../engine/solverEngine'
 import { CategoryCard, SolutionCard } from '../components/ui'
 import { Icon } from '../components/icons'
+import { useToast } from '../components/PremiumUI'
 
 function load(key, fallback) {
   try { const v = JSON.parse(localStorage.getItem(key)); return v ?? fallback } catch { return fallback }
@@ -30,6 +31,7 @@ export default function Dashboard() {
   const [recent, setRecent] = useState(() => load('edusolve_recent', []))
   const [savedIds, setSavedIds] = useState(() => load('edusolve_saved', []))
   const [checks, setChecks] = useState(() => load('edusolve_checks', [true, true, false, false, false]))
+  const [toast, showToast] = useToast()
 
   useEffect(() => {
     const c = params.get('cat')
@@ -98,7 +100,7 @@ export default function Dashboard() {
       {activeSolution && (
         <div className="section">
           <SolutionCard solution={activeSolution} saved={isSaved} onSave={toggleSave}
-            onSolved={() => alert(lang === 'mr' ? 'छान! अभिप्राय नोंदवला.' : 'Great! Feedback noted.')}
+            onSolved={() => showToast(lang === 'mr' ? 'छान! अभिप्राय नोंदवला.' : 'Great! Feedback noted.')}
             onUnsolved={() => nav(`/solver?q=${encodeURIComponent(activeSolution.title)}`)} />
         </div>
       )}
@@ -130,6 +132,7 @@ export default function Dashboard() {
           ))}
         </div>
       </div>
+      {toast}
     </div>
   )
 }

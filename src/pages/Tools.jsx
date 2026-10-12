@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useLang } from '../context/LanguageContext'
 import { STRINGS } from '../i18n/translations'
 import { Icon } from '../components/icons'
+import { SearchSelect } from '../components/PremiumUI'
 
 const TOOLS = [
   { id: 'docprep', icon: 'folder', en: 'Document preparation checklist', mr: 'कागदपत्र तयारी यादी' },
@@ -84,9 +85,13 @@ function FileChecker({ lang }) {
   }
   return (
     <div>
-      <div className="row">
-        <div><label>Preset</label><br /><select value={preset} onChange={(e) => setPreset(e.target.value)}>{Object.entries(presets).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}</select></div>
-        <div><label>{lang === 'mr' ? 'फाइल निवडा (अपलोड होत नाही)' : 'Choose a file (never uploaded)'}</label><br /><input type="file" onChange={(e) => setFile(e.target.files?.[0] || null)} /></div>
+      <div className="row ss-row">
+        <SearchSelect label="Preset" value={preset} onChange={setPreset} placeholder="Search presets..."
+          options={Object.entries(presets).map(([k, v]) => ({ value: k, label: v.label, icon: 'box' }))} />
+        <div className="field"><span className="ss-label">{lang === 'mr' ? 'फाइल निवडा (अपलोड होत नाही)' : 'Choose a file (never uploaded)'}</span>
+          <label className="file-chip"><Icon name="upload" size={15} /> {file ? file.name : (lang === 'mr' ? 'फाइल निवडा' : 'Browse file')}
+            <input type="file" onChange={(e) => setFile(e.target.files?.[0] || null)} /></label>
+        </div>
       </div>
       {!file && <p className="muted small" style={{ marginTop: 12 }}>Select a file on your device. It is checked locally in your browser only.</p>}
       {verdict && (
@@ -135,11 +140,13 @@ function PhotoResizer({ lang }) {
   return (
     <div>
       <p className="muted small">{lang === 'mr' ? 'फोटो: पांढरी पार्श्वभूमी, दिवसाचा प्रकाश. सही: कोऱ्या कागदावर काळा पेन. फाइल निवडा, आकार ठरवा, Resize दाबा, नंतर डाउनलोड करा. सर्व काही तुमच्या ब्राउझरमध्येच होते.' : 'Photo: white background, daylight. Signature: black pen on plain paper. Choose file, set size, press Resize, then Download. Everything happens in your browser.'}</p>
-      <div className="row">
-        <input type="file" accept="image/*" onChange={(e) => onFile(e.target.files?.[0])} />
-        <div><label>Width px</label><br /><input type="number" value={w} onChange={(e) => setW(+e.target.value || 200)} style={{ width: 90 }} /></div>
-        <div><label>Height px</label><br /><input type="number" value={h} onChange={(e) => setH(+e.target.value || 230)} style={{ width: 90 }} /></div>
-        <div><label>Quality</label><br /><select value={quality} onChange={(e) => setQuality(+e.target.value)}><option value={0.6}>0.6 (smaller)</option><option value={0.8}>0.8</option><option value={0.92}>0.92 (clearer)</option></select></div>
+      <div className="row ss-row">
+        <label className="file-chip"><Icon name="upload" size={15} /> {src ? (lang === 'mr' ? 'फोटो बदला' : 'Change photo') : (lang === 'mr' ? 'फोटो निवडा' : 'Choose photo')}
+          <input type="file" accept="image/*" onChange={(e) => onFile(e.target.files?.[0])} /></label>
+        <div className="field"><span className="ss-label">Width px</span><input type="number" value={w} onChange={(e) => setW(+e.target.value || 200)} /></div>
+        <div className="field"><span className="ss-label">Height px</span><input type="number" value={h} onChange={(e) => setH(+e.target.value || 230)} /></div>
+        <SearchSelect label="Quality" value={String(quality)} onChange={(v) => setQuality(+v)}
+          options={[{ value: '0.6', label: '0.6 (smaller)', icon: 'photo' }, { value: '0.8', label: '0.8 (balanced)', icon: 'photo' }, { value: '0.92', label: '0.92 (clearer)', icon: 'photo' }]} />
         <button className="btn primary small" disabled={!src} onClick={resize}><Icon name="scissors" size={14} /> Resize</button>
       </div>
       {src && <div><p className="muted small">Original:</p><img className="preview-img" src={src} alt="original" /></div>}
