@@ -93,7 +93,30 @@ export function Layout({ children }) {
       <Navbar />
       <main className="main">{children}</main>
       <Footer />
+      <MobileTabBar />
     </div>
+  )
+}
+
+export function MobileTabBar() {
+  const { lang } = useLang()
+  const t = STRINGS[lang]
+  const tabs = [
+    { to: '/', label: t.nav_home, icon: 'home' },
+    { to: '/dashboard', label: t.nav_dashboard, icon: 'grid' },
+    { to: '/solver', label: t.nav_solver, icon: 'chat' },
+    { to: '/tools', label: t.nav_tools, icon: 'wrench' },
+    { to: '/about', label: t.nav_about, icon: 'info' },
+  ]
+  return (
+    <nav className="tabbar" aria-label="Primary">
+      {tabs.map((tab) => (
+        <NavLink key={tab.to} to={tab.to} className={({ isActive }) => 'tab' + (isActive ? ' active' : '')}>
+          <Icon name={tab.icon} size={21} />
+          <span>{tab.label}</span>
+        </NavLink>
+      ))}
+    </nav>
   )
 }
 
