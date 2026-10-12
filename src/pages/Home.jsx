@@ -21,6 +21,12 @@ export default function Home() {
     { icon: 'languages', t: t.feat_3_t, d: t.feat_3_d },
     { icon: 'shield', t: t.feat_4_t, d: t.feat_4_d },
   ]
+  const actions = [
+    { icon: 'chat', t: lang === 'mr' ? 'AI ला विचारा' : 'Ask AI', d: lang === 'mr' ? 'समस्या लिहा, उपाय मिळवा' : 'Describe it, get steps', to: '/solver' },
+    { icon: 'box', t: lang === 'mr' ? 'फाइल तपासा' : 'Check file', d: lang === 'mr' ? 'आकार व प्रकार' : 'Size and format', to: '/tools' },
+    { icon: 'photo', t: lang === 'mr' ? 'फोटो ठरवा' : 'Fix photo', d: lang === 'mr' ? 'आकार बदला' : 'Resize it', to: '/tools' },
+    { icon: 'grid', t: lang === 'mr' ? 'प्रकार पाहा' : 'Browse issues', d: lang === 'mr' ? '१२ समस्या प्रकार' : '12 categories', to: '/dashboard' },
+  ]
 
   return (
     <div>
@@ -49,6 +55,16 @@ export default function Home() {
             <div className="typing">EduSolve demo assistant • frontend only</div>
           </div>
         </div>
+      </section>
+
+      <section className="quick-grid" aria-label="Quick actions">
+        {actions.map((a) => (
+          <button key={a.t} className="quick-card" onClick={() => nav(a.to)}>
+            <span className="quick-icon"><Icon name={a.icon} size={22} /></span>
+            <span className="quick-text"><b>{a.t}</b><small>{a.d}</small></span>
+            <Icon name="chevron" size={16} />
+          </button>
+        ))}
       </section>
 
       <section className="section">

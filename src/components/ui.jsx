@@ -104,15 +104,15 @@ export function MobileTabBar() {
   const tabs = [
     { to: '/', label: t.nav_home, icon: 'home' },
     { to: '/dashboard', label: t.nav_dashboard, icon: 'grid' },
-    { to: '/solver', label: t.nav_solver, icon: 'chat' },
+    { to: '/solver', label: t.nav_solver, icon: 'chat', fab: true },
     { to: '/tools', label: t.nav_tools, icon: 'wrench' },
     { to: '/about', label: t.nav_about, icon: 'info' },
   ]
   return (
     <nav className="tabbar" aria-label="Primary">
       {tabs.map((tab) => (
-        <NavLink key={tab.to} to={tab.to} className={({ isActive }) => 'tab' + (isActive ? ' active' : '')}>
-          <Icon name={tab.icon} size={21} />
+        <NavLink key={tab.to} to={tab.to} className={({ isActive }) => 'tab' + (isActive ? ' active' : '') + (tab.fab ? ' fab-tab' : '')}>
+          {tab.fab ? <span className="fab-circle"><Icon name={tab.icon} size={24} /></span> : <Icon name={tab.icon} size={21} />}
           <span>{tab.label}</span>
         </NavLink>
       ))}
