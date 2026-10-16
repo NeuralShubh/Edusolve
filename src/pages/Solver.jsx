@@ -6,6 +6,7 @@ import { SOLUTIONS } from '../data/categories'
 import { startSession, buildSolution, fallbackSolution, getCategoryById } from '../engine/solverEngine'
 import { SolutionCard } from '../components/ui'
 import { Icon } from '../components/icons'
+import { addFeedback } from '../lib/store'
 
 function load(k, f) { try { const v = JSON.parse(localStorage.getItem(k)); return v ?? f } catch { return f } }
 function store(k, v) { try { localStorage.setItem(k, JSON.stringify(v)) } catch {} }
@@ -98,7 +99,7 @@ export default function Solver() {
           {['My scholarship form is not submitting.', 'OTP is not coming on my mobile.', 'Payment deducted but no receipt.', 'Photo upload rejected, file too large.', 'Page refresh erased my form data.'].map((ex) => (
             <div key={ex} style={{ marginBottom: 8 }}><button className="pill" onClick={() => handleUserText(ex)}>{ex}</button></div>
           ))}
-          <hr style={{ border: 0, borderTop: '1px solid var(--border)', margin: '14px 0' }} />
+          <hr style={{ border: 0, borderTop: '1px solid var(--line)', margin: '14px 0' }} />
           <p className="muted small with-icon"><Icon name="alert" size={14} /> {t.demo_note}</p>
           <p className="muted small with-icon"><Icon name="shield" size={14} /> {lang === 'mr' ? 'पासवर्ड, OTP किंवा बँक तपशील कधीही टाकू नका.' : 'Never type passwords, OTPs or bank details here.'}</p>
           <button className="btn small" onClick={() => { setMessages(messages.slice(0, 1)); setSolution(null); setSession(null); setFeedback('') }}><Icon name="trash" size={14} /> {t.clear}</button>
@@ -126,8 +127,8 @@ export default function Solver() {
           </div>
           {solution && (
             <SolutionCard solution={solution} saved={isSaved} onSave={toggleSave}
-              onSolved={() => setFeedback(lang === 'mr' ? 'छान! तुमचा अभिप्राय जतन केला. आणखी मदत हवी असल्यास स्मार्ट साधने वापरा.' : 'Great! Feedback noted. For extra help, try the Smart Tools.')}
-              onUnsolved={() => setFeedback(lang === 'mr' ? 'समजले. जवळचा दुसरा प्रकार डॅशबोर्डमध्ये उघडा किंवा कॉलेज हेल्पडेस्कशी स्क्रीनशॉटसह संपर्क साधा. पैसे कपात झाल्यास UTR जतन करा.' : 'Understood. Open a nearby category in the Dashboard or contact the college helpdesk with screenshots. If money was deducted, keep the UTR.')} />
+              onSolved={() => { addFeedback({ title: solution.title, verdict: 'solved', source: 'solver' }); setFeedback(lang === 'mr' ? 'छान! तुमचा अभिप्राय जतन केला. आणखी मदत हवी असल्यास स्मार्ट साधने वापरा.' : 'Great! Feedback noted. For extra help, try the Smart Tools.') }}
+              onUnsolved={() => { addFeedback({ title: solution.title, verdict: 'unsolved', source: 'solver' }); setFeedback(lang === 'mr' ? 'समजले. जवळचा दुसरा प्रकार डॅशबोर्डमध्ये उघडा किंवा कॉलेज हेल्पडेस्कशी स्क्रीनशॉटसह संपर्क साधा. पैसे कपात झाल्यास UTR जतन करा.' : 'Understood. Open a nearby category in the Dashboard or contact the college helpdesk with screenshots. If money was deducted, keep the UTR.') }} />
           )}
           {feedback && <div className="result ok">{feedback}</div>}
         </div>

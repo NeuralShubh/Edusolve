@@ -7,6 +7,7 @@ import { buildSolution } from '../engine/solverEngine'
 import { CategoryCard, SolutionCard } from '../components/ui'
 import { Icon } from '../components/icons'
 import { useToast } from '../components/PremiumUI'
+import { addFeedback } from '../lib/store'
 
 function load(key, fallback) {
   try { const v = JSON.parse(localStorage.getItem(key)); return v ?? fallback } catch { return fallback }
@@ -100,8 +101,8 @@ export default function Dashboard() {
       {activeSolution && (
         <div className="section">
           <SolutionCard solution={activeSolution} saved={isSaved} onSave={toggleSave}
-            onSolved={() => showToast(lang === 'mr' ? 'छान! अभिप्राय नोंदवला.' : 'Great! Feedback noted.')}
-            onUnsolved={() => nav(`/solver?q=${encodeURIComponent(activeSolution.title)}`)} />
+            onSolved={() => { addFeedback({ title: activeSolution.title, verdict: 'solved', source: 'dashboard' }); showToast(lang === 'mr' ? 'छान! अभिप्राय नोंदवला.' : 'Great! Feedback noted.') }}
+            onUnsolved={() => { addFeedback({ title: activeSolution.title, verdict: 'unsolved', source: 'dashboard' }); nav(`/solver?q=${encodeURIComponent(activeSolution.title)}`) }} />
         </div>
       )}
 

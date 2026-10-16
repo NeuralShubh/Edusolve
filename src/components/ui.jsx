@@ -55,6 +55,7 @@ function MobileMenu({ t, toggle, lang }) {
           <button onClick={() => go('/solver')}>{t.nav_solver}</button>
           <button onClick={() => go('/tools')}>{t.nav_tools}</button>
           <button onClick={() => go('/about')}>{t.nav_about}</button>
+          <button onClick={() => go('/admin')}>{lang === 'mr' ? 'अ‍ॅडमिन' : 'Admin panel'}</button>
           <button onClick={() => { toggle(); setOpen(false) }}>{lang === 'en' ? 'मराठी' : 'English'}</button>
         </div>
       )}
@@ -87,7 +88,11 @@ export function Footer() {
   )
 }
 
+import { useEffect } from 'react'
+import { trackVisit } from '../lib/store'
+
 export function Layout({ children }) {
+  useEffect(() => { trackVisit() }, [])
   return (
     <div className="app-shell">
       <Sidebar />
@@ -132,6 +137,7 @@ export function Sidebar() {
         <button className="lang-btn side-lang" onClick={toggle}>
           <Icon name="languages" size={15} /> {lang === 'en' ? 'मराठी' : 'English'}
         </button>
+        <Link to="/admin" className="side-admin"><Icon name="lock" size={14} /> {lang === 'mr' ? 'अ‍ॅडमिन' : 'Admin panel'}</Link>
         <p className="demo-pill"><Icon name="alert" size={13} /> {lang === 'mr' ? 'नमुना प्रकल्प' : 'Demo project'}</p>
       </div>
     </aside>
