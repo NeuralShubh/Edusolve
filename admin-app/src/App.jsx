@@ -1,14 +1,12 @@
 import { useMemo, useState } from 'react'
-import { useLang } from '../context/LanguageContext'
-import { STRINGS } from '../i18n/translations'
-import { CATEGORIES } from '../data/categories'
-import { Icon } from '../components/icons'
+import { CATEGORIES } from '../../src/data/categories'
+import { Icon } from '../../src/components/icons'
 import {
   isAdmin, adminLogin, adminLogout, adminName,
   getFeedback, clearFeedback, addFeedback,
   getFeatured, toggleFeatured,
   getVisits, last7Days, relativeTime, clearAllAppData,
-} from '../lib/store'
+} from '../../src/lib/store'
 
 function seedOnce() {
   if (getFeedback().length > 0) return
@@ -20,11 +18,10 @@ function seedOnce() {
     { title: 'Document Upload Problems', verdict: 'solved', source: 'solver', at: now - 30 * H },
     { title: 'Form Instructions and Information Entry', verdict: 'solved', source: 'dashboard', at: now - 44 * H },
   ]
-  demo.forEach((d, i) => addFeedback({ ...d, id: now - i }))
+  demo.forEach((d) => addFeedback(d))
 }
 
-function AdminLogin() {
-  const { lang } = useLang()
+function AdminLogin({ lang }) {
   const [name, setName] = useState('')
   const [pin, setPin] = useState('')
   const [err, setErr] = useState('')
@@ -39,8 +36,8 @@ function AdminLogin() {
     <div className="admin-login">
       <form className="card admin-login-card" onSubmit={submit}>
         <span className="admin-lock"><Icon name="lock" size={24} /></span>
-        <h2>Admin panel</h2>
-        <p className="muted small">Frontend demo access. No real accounts or server data.</p>
+        <h2>EduSolve Admin</h2>
+        <p className="muted small">Separate admin panel. Demo access, frontend only.</p>
         <label>{lang === 'mr' ? 'तुमचे नाव' : 'Your name'}</label>
         <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Admin" />
         <label style={{ marginTop: 12 }}>{lang === 'mr' ? 'डेमो PIN' : 'Demo PIN'}</label>
@@ -68,8 +65,7 @@ function Kpi({ icon, label, value, sub }) {
   )
 }
 
-function Overview() {
-  const { lang } = useLang()
+function Overview({ lang }) {
   const fb = getFeedback()
   const visits = getVisits()
   const days = last7Days()
@@ -81,10 +77,10 @@ function Overview() {
   return (
     <div>
       <div className="kpi-grid">
-        <Kpi icon="chat" label={lang === 'mr' ? 'प्रतिसाद' : 'Feedback entries'} value={fb.length} sub="localStorage (this device)" />
-        <Kpi icon="checkcircle" label={lang === 'mr' ? 'सोडवले' : 'Marked solved'} value={solved + '%'} sub={rate + '% resolution rate'} />
-        <Kpi icon="grid" label={lang === 'mr' ? 'समस्या प्रकार' : 'Categories'} value={CATEGORIES.length} sub={lang === 'mr' ? 'लाइव्ह सामग्री' : 'Live content'} />
-        <Kpi icon="history" label={lang === 'mr' ? '७ दिवस भेटी' : 'Visits (7 days)'} value={weekTotal} sub={lang === 'mr' ? 'या उपकरणावर' : 'on this device'} />
+        <Kpi icon="chat" label={lang === 'mr' ? 'प्रतिसाद' : 'Feedback entries'} value={fb.length} sub="from app + this device" />
+        <Kpi icon="checkcircle" label={lang === 'mr' ? 'सोडवले' : 'Solved rate'} value={rate + '%'} sub={solved + ' solved'} />
+        <Kpi icon="grid" label={lang === 'mr' ? 'समस्या प्रकार' : 'Categories'} value={CATEGORIES.length} sub="live content" />
+        <Kpi icon="history" label={lang === 'mr' ? '७ दिवस भेटी' : 'Visits (7 days)'} value={weekTotal} sub="same browser origin" />
       </div>
       <div className="card" style={{ marginTop: 14 }}>
         <h3 className="with-icon"><Icon name="history" size={18} /> {lang === 'mr' ? 'दैनंदिन भेटी' : 'Daily visits'}</h3>
@@ -113,8 +109,7 @@ function Overview() {
   )
 }
 
-function FeedbackInbox() {
-  const { lang } = useLang()
+function FeedbackInbox({ lang }) {
   const [q, setQ] = useState('')
   const [askClear, setAskClear] = useState(false)
   const fb = getFeedback()
@@ -144,8 +139,7 @@ function FeedbackInbox() {
   )
 }
 
-function CategoriesAdmin() {
-  const { lang } = useLang()
+function CategoriesAdmin({ lang }) {
   const [q, setQ] = useState('')
   const [featured, setFeatured] = useState(() => getFeatured())
   const list = useMemo(() => {
@@ -169,50 +163,49 @@ function CategoriesAdmin() {
           </div>
         ))}
       </div>
-      <p className="muted small" style={{ marginTop: 12 }}>
-        <Icon name="alert" size={13} /> Feature flag is saved on this device only (frontend demo, no database).
-      </p>
     </div>
   )
 }
 
-function SettingsAdmin() {
-  const { lang } = useLang()
+function SettingsAdmin({ lang }) {
   const [askReset, setAskReset] = useState(false)
   return (
     <div className="grid cols2">
       <div className="card">
         <h3 className="with-icon" style={{ marginTop: 0 }}><Icon name="shield" size={18} /> Session</h3>
-        <p className="muted small">Signed in as <b>{adminName()}</b>. Access is stored only in this browser.</p>
+        <p className="muted small">Signed in as <b>{adminName()}</b>. Stored only in this browser.</p>
         <button className="btn small" onClick={() => { adminLogout(); window.location.reload() }}>
           <Icon name="lock" size={14} /> {lang === 'mr' ? 'लॉगआउट' : 'Log out'}
         </button>
       </div>
       <div className="card">
         <h3 className="with-icon" style={{ marginTop: 0 }}><Icon name="trash" size={18} /> {lang === 'mr' ? 'डेटा' : 'Local data'}</h3>
-        <p className="muted small">Clears feedback, visits, checks and saved items on this device. Language is kept.</p>
+        <p className="muted small">Clears feedback, visits and flags in this browser.</p>
         {askReset
           ? <div className="row"><button className="btn small primary" onClick={() => { clearAllAppData(); window.location.reload() }}><Icon name="check" size={14} /> {lang === 'mr' ? 'होय, रीसेट' : 'Yes, reset'}</button>
             <button className="btn small" onClick={() => setAskReset(false)}><Icon name="x" size={14} /> {lang === 'mr' ? 'रद्द' : 'Cancel'}</button></div>
-          : <button className="btn small secondary" onClick={() => setAskReset(true)}><Icon name="refresh" size={14} /> {lang === 'mr' ? 'सर्व रीसेट करा' : 'Reset app data'}</button>}
+          : <button className="btn small secondary" onClick={() => setAskReset(true)}><Icon name="refresh" size={14} /> {lang === 'mr' ? 'सर्व रीसेट करा' : 'Reset data'}</button>}
       </div>
       <div className="card">
         <h3 className="with-icon" style={{ marginTop: 0 }}><Icon name="info" size={18} /> Build info</h3>
-        <p className="muted small">EduSolve AI admin. React + Vite frontend demo. No backend, no database, no real AI. Data you see is browser storage plus demo seeds.</p>
+        <p className="muted small">Separate EduSolve admin app. React + Vite. No backend, no database. Student site stays clean at the main URL.</p>
       </div>
       <div className="card">
         <h3 className="with-icon" style={{ marginTop: 0 }}><Icon name="shield" size={18} /> Safety</h3>
-        <p className="muted small">This panel never asks for real passwords, OTPs, UPI or bank details. Do not enter such data anywhere in the app.</p>
+        <p className="muted small">Never enter real passwords, OTPs, UPI or bank details here.</p>
       </div>
     </div>
   )
 }
 
-export default function Admin() {
-  const { lang } = useLang()
+export default function App() {
+  const [lang, setLang] = useState(() => localStorage.getItem('edusolve_admin_lang') || 'en')
+  const setLanguage = (l) => { setLang(l); localStorage.setItem('edusolve_admin_lang', l) }
   const [tab, setTab] = useState('overview')
-  if (!isAdmin()) return <AdminLogin />
+
+  if (!isAdmin()) return <AdminLogin lang={lang} />
   seedOnce()
+
   const tabs = [
     { id: 'overview', label: lang === 'mr' ? 'ओव्हरव्ह्यू' : 'Overview', icon: 'sparkles' },
     { id: 'feedback', label: lang === 'mr' ? 'प्रतिसाद' : 'Feedback', icon: 'chat' },
@@ -220,28 +213,35 @@ export default function Admin() {
     { id: 'settings', label: lang === 'mr' ? 'सेटिंग्ज' : 'Settings', icon: 'shield' },
   ]
   return (
-    <div>
-      <div className="admin-head">
-        <div>
-          <h2 className="with-icon" style={{ margin: 0 }}><Icon name="lock" size={24} /> {lang === 'mr' ? 'अ‍ॅडमिन पॅनल' : 'Admin panel'}</h2>
-          <p className="muted">{lang === 'mr' ? 'नमुना प्रकल्प व्यवस्थापन. सर्व माहिती फक्त या ब्राउझरमध्ये.' : 'Demo project management. All data stays in this browser only.'}</p>
+    <div className="shell">
+      <header className="topbar">
+        <div className="brand">
+          <span className="brand-mark"><Icon name="lock" size={18} /></span>
+          <b>EduSolve <span>Admin</span></b>
         </div>
         <div className="row">
+          <button className="lang-btn" onClick={() => setLanguage(lang === 'en' ? 'mr' : 'en')}>
+            <Icon name="languages" size={14} /> {lang === 'en' ? 'मराठी' : 'English'}
+          </button>
           <span className="admin-badge"><Icon name="lock" size={13} /> {adminName()}</span>
           <button className="btn small" onClick={() => { adminLogout(); window.location.reload() }}><Icon name="lock" size={14} /> {lang === 'mr' ? 'बाहेर' : 'Log out'}</button>
         </div>
-      </div>
-      <div className="tool-nav admin-tabs">
-        {tabs.map((tb) => (
-          <button key={tb.id} className={tab === tb.id ? 'active' : ''} onClick={() => setTab(tb.id)}>
-            <span className="with-icon"><Icon name={tb.icon} size={15} /> {tb.label}</span>
-          </button>
-        ))}
-      </div>
-      {tab === 'overview' && <Overview />}
-      {tab === 'feedback' && <FeedbackInbox />}
-      {tab === 'cats' && <CategoriesAdmin />}
-      {tab === 'settings' && <SettingsAdmin />}
+      </header>
+      <main className="page">
+        <h1 className="page-title">{lang === 'mr' ? 'अ‍ॅडमिन पॅनल' : 'Admin panel'}</h1>
+        <p className="muted" style={{ marginTop: -6 }}>{lang === 'mr' ? 'वेगळी ऍडमिन ऍप. मुख्य विद्यार्थी साइटला स्पर्श करत नाही.' : 'Separate admin app. Does not touch the student site UI.'}</p>
+        <div className="tool-nav admin-tabs">
+          {tabs.map((tb) => (
+            <button key={tb.id} className={tab === tb.id ? 'active' : ''} onClick={() => setTab(tb.id)}>
+              <span className="with-icon"><Icon name={tb.icon} size={15} /> {tb.label}</span>
+            </button>
+          ))}
+        </div>
+        {tab === 'overview' && <Overview lang={lang} />}
+        {tab === 'feedback' && <FeedbackInbox lang={lang} />}
+        {tab === 'cats' && <CategoriesAdmin lang={lang} />}
+        {tab === 'settings' && <SettingsAdmin lang={lang} />}
+      </main>
     </div>
   )
 }

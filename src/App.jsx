@@ -6,7 +6,6 @@ import Dashboard from './pages/Dashboard'
 import Solver from './pages/Solver'
 import Tools from './pages/Tools'
 import About from './pages/About'
-import Admin from './pages/Admin'
 
 export default function App() {
   return (
@@ -19,7 +18,6 @@ export default function App() {
             <Route path="/solver" element={<Solver />} />
             <Route path="/tools" element={<Tools />} />
             <Route path="/about" element={<About />} />
-            <Route path="/admin" element={<Admin />} />
             <Route path="*" element={<Home />} />
           </Routes>
         </Layout>
