@@ -90,11 +90,51 @@ export function Footer() {
 export function Layout({ children }) {
   return (
     <div className="app-shell">
-      <Navbar />
-      <main className="main">{children}</main>
-      <Footer />
+      <Sidebar />
+      <div className="content-col">
+        <Navbar />
+        <main className="main">{children}</main>
+        <Footer />
+      </div>
       <MobileTabBar />
     </div>
+  )
+}
+
+export function Sidebar() {
+  const { lang, toggle } = useLang()
+  const t = STRINGS[lang]
+  const nav = useNavigate()
+  const items = [
+    { to: '/', label: t.nav_home, icon: 'home' },
+    { to: '/dashboard', label: t.nav_dashboard, icon: 'grid' },
+    { to: '/solver', label: t.nav_solver, icon: 'chat' },
+    { to: '/tools', label: t.nav_tools, icon: 'wrench' },
+    { to: '/about', label: t.nav_about, icon: 'info' },
+  ]
+  return (
+    <aside className="sidebar" aria-label="Side menu">
+      <div className="side-top"><Logo /></div>
+      <nav className="side-nav">
+        <span className="side-eyebrow">{lang === 'mr' ? 'मेनू' : 'Menu'}</span>
+        {items.map((it) => (
+          <NavLink key={it.to} to={it.to} className={({ isActive }) => 'side-link' + (isActive ? ' active' : '')}>
+            <span className="side-ico"><Icon name={it.icon} size={19} /></span>
+            {it.label}
+          </NavLink>
+        ))}
+        <span className="side-eyebrow" style={{ marginTop: 14 }}>{lang === 'mr' ? 'पटकन' : 'Quick'}</span>
+        <button className="side-cta" onClick={() => nav('/solver')}>
+          <Icon name="sparkles" size={17} /> {t.start_solving}
+        </button>
+      </nav>
+      <div className="side-foot">
+        <button className="lang-btn side-lang" onClick={toggle}>
+          <Icon name="languages" size={15} /> {lang === 'en' ? 'मराठी' : 'English'}
+        </button>
+        <p className="demo-pill"><Icon name="alert" size={13} /> {lang === 'mr' ? 'नमुना प्रकल्प' : 'Demo project'}</p>
+      </div>
+    </aside>
   )
 }
 
