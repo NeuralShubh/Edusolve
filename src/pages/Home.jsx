@@ -45,8 +45,6 @@ export default function Home() {
           <div><span className="demo-pill"><Icon name="alert" size={14} /> {t.demo_note}</span></div>
         </div>
         <div className="hero-art">
-          <span className="float-chip c1"><Icon name="checkcircle" size={14} /> {lang === 'mr' ? 'टप्प्याटप्प्याने उपाय' : 'Step-by-step fix'}</span>
-          <span className="float-chip c2"><Icon name="languages" size={14} /> EN + मराठी</span>
           <div className="chat-mock">
             <div className="bubble user">{lang === 'mr' ? 'माझा शिष्यवृत्ती फॉर्म सबमिट होत नाही.' : 'My scholarship form is not submitting.'}</div>
             <div className="bubble bot">{lang === 'mr' ? 'समजले! ही “फॉर्म सबमिशन” समस्या वाटते. २ सोपे प्रश्न विचारू का?' : 'Got it! This looks like a “Form Submission” issue. May I ask 2 quick questions?'}</div>
