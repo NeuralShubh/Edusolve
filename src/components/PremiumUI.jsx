@@ -11,7 +11,7 @@ export function SearchSelect({ label, value, onChange, options, placeholder = 'S
   const list = useMemo(() => {
     const s = q.trim().toLowerCase()
     if (!s) return options
-    return options.filter((o) => o.label.toLowerCase().includes(s))
+    return options.filter((o) => (o.search || o.label).toLowerCase().includes(s))
   }, [q, options])
 
   const cur = options.find((o) => o.value === value)

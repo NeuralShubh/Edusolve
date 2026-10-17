@@ -6,7 +6,7 @@ import { CATEGORIES } from '../data/categories'
 import { buildSolution } from '../engine/solverEngine'
 import { CategoryCard, SolutionCard } from '../components/ui'
 import { Icon } from '../components/icons'
-import { useToast } from '../components/PremiumUI'
+import { SearchSelect, useToast } from '../components/PremiumUI'
 import { addFeedback } from '../lib/store'
 
 function load(key, fallback) {
@@ -27,7 +27,6 @@ export default function Dashboard() {
   const t = STRINGS[lang]
   const nav = useNavigate()
   const [params] = useSearchParams()
-  const [query, setQuery] = useState('')
   const [activeCat, setActiveCat] = useState(params.get('cat') || '')
   const [recent, setRecent] = useState(() => load('edusolve_recent', []))
   const [savedIds, setSavedIds] = useState(() => load('edusolve_saved', []))
@@ -39,13 +38,14 @@ export default function Dashboard() {
     if (c) setActiveCat(c)
   }, [params])
 
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase()
-    if (!q) return CATEGORIES
-    return CATEGORIES.filter((c) =>
-      (c.title.en + c.title.mr + c.desc.en + c.desc.mr + c.keywords.join(' ')).toLowerCase().includes(q)
-    )
-  }, [query])
+  const catOptions = useMemo(() => CATEGORIES.map((c) => ({
+    value: c.id,
+    label: c.title[lang] || c.title.en,
+    icon: c.icon,
+    search: [c.title.en, c.title.mr, c.desc.en, c.desc.mr, c.keywords.join(' ')].join(' ').toLowerCase(),
+  })), [lang])
+
+  const catById = (id) => CATEGORIES.find((x) => x.id === id)
 
   const openCat = (id) => {
     setActiveCat(id)
@@ -66,9 +66,11 @@ export default function Dashboard() {
   }
   const progress = Math.round((checks.filter(Boolean).length / checks.length) * 100)
 
-  const askAI = () => nav('/solver' + (query.trim() ? `?q=${encodeURIComponent(query.trim())}` : ''))
-
-  const catById = (id) => CATEGORIES.find((x) => x.id === id)
+  const askAI = () => {
+    const c = activeCat ? catById(activeCat) : null
+    const q = c ? (c.title[lang] || c.title.en) : ''
+    nav('/solver' + (q ? `?q=${encodeURIComponent(q)}` : ''))
+  }
 
   return (
     <div>
@@ -76,13 +78,11 @@ export default function Dashboard() {
         <h2 className="with-icon" style={{ margin: 0 }}><Icon name="sparkles" size={24} /> {t.welcome}</h2>
         <p className="muted">{t.dash_sub}</p>
         <div className="search-row">
-          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={t.search_ph} onKeyDown={(e) => e.key === 'Enter' && askAI()} />
+          <SearchSelect label={lang === 'mr' ? 'समस्या निवडा किंवा शोधा' : 'Pick or search a problem'}
+            value={activeCat} onChange={openCat}
+            placeholder={t.search_ph}
+            options={catOptions} />
           <button className="btn primary" onClick={askAI}><Icon name="chat" size={16} /> {t.ask_ai}</button>
-        </div>
-        <div className="pill-list">
-          {['OTP', 'payment failed', 'photo upload', 'form not submitting', 'file too large'].map((s) => (
-            <button key={s} className="pill" onClick={() => { setQuery(s) }}>{s}</button>
-          ))}
         </div>
       </div>
 
@@ -90,12 +90,11 @@ export default function Dashboard() {
         <h2 className="with-icon"><Icon name="grid" size={24} /> {lang === 'mr' ? 'समस्या प्रकार (१२)' : 'Problem categories (12)'}</h2>
         <p className="sub">{t.popular_sub}</p>
         <div className="grid cats">
-          {filtered.map((c) => (
+          {CATEGORIES.map((c) => (
             <CategoryCard key={c.id} icon={c.icon} title={c.title[lang] || c.title.en} desc={c.desc[lang] || c.desc.en}
               active={activeCat === c.id} onClick={() => openCat(c.id)} />
           ))}
         </div>
-        {filtered.length === 0 && <p className="muted">No matches. Try “OTP”, “payment”, “photo”…</p>}
       </div>
 
       {activeSolution && (

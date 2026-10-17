@@ -112,7 +112,7 @@ function PhotoResizer({ lang }) {
   const [out, setOut] = useState(null)
   const [w, setW] = useState(200)
   const [h, setH] = useState(230)
-  const [quality, setQuality] = useState(0.8)
+  const [quality, setQuality] = useState(0.92)
 
   const onFile = (f) => {
     if (!f) return
@@ -134,10 +134,11 @@ function PhotoResizer({ lang }) {
       ctx.drawImage(img, dx, dy, dw, dh)
       const url = canvas.toDataURL('image/jpeg', quality)
       const bytes = Math.round((url.length * 3) / 4)
-      setOut({ url, kb: bytes / 1024 })
+      setOut({ url, kb: bytes / 1024, w, h, up: img.width < w || img.height < h })
     }
     img.src = src
   }
+  const dispW = out ? Math.round(out.w * Math.min(Math.max(200 / out.w, 1), 2, 420 / out.h)) : 0
   return (
     <div>
       <p className="muted small">{lang === 'mr' ? 'फोटो: पांढरी पार्श्वभूमी, दिवसाचा प्रकाश. सही: कोऱ्या कागदावर काळा पेन. फाइल निवडा, आकार ठरवा, Resize दाबा, नंतर डाउनलोड करा. सर्व काही तुमच्या ब्राउझरमध्येच होते.' : 'Photo: white background, daylight. Signature: black pen on plain paper. Choose file, set size, press Resize, then Download. Everything happens in your browser.'}</p>
@@ -153,8 +154,10 @@ function PhotoResizer({ lang }) {
       {src && <div><p className="muted small">Original:</p><img className="preview-img" src={src} alt="original" /></div>}
       {out && (
         <div className="result ok">
-          <span className="with-icon"><Icon name="check" size={15} /> Resized to {w}x{h}px, about {out.kb.toFixed(1)} KB (real output, measured locally).</span><br />
-          <img className="preview-img" src={out.url} alt="resized" /><br /><br />
+          <span className="with-icon"><Icon name="check" size={15} /> Resized to {out.w}x{out.h}px, about {out.kb.toFixed(1)} KB (real output, measured locally).</span>
+          {out.up && <p className="muted small" style={{ margin: '8px 0 0' }}>{lang === 'mr' ? 'टीप: आउटपुट मूळ फोटोपेक्षा मोठे आहे, त्यामुळे झूम केल्यावरसॉफ्ट दिसेल. स्पष्टतेसाठी मूळ फोटोजवळचा आकार ठरवा.' : 'Note: the output is larger than the source photo, so it looks soft when zoomed. Set a size close to the original photo for best clarity.'}</p>}
+          <img className="preview-img" src={out.url} alt="resized" style={{ width: dispW, maxHeight: 'none' }} />
+          <br /><br />
           <a className="btn primary small" href={out.url} download={`edusolve-${w}x${h}.jpg`}><Icon name="download" size={14} /> Download resized JPG</a>
         </div>
       )}

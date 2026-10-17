@@ -9,12 +9,6 @@ export default function Home() {
   const t = STRINGS[lang]
   const nav = useNavigate()
   const popular = CATEGORIES.slice(5, 9)
-  const stats = [
-    { b: '12', s: lang === 'mr' ? 'समस्या प्रकार' : 'Problem categories' },
-    { b: '6', s: lang === 'mr' ? 'स्मार्ट साधने' : 'Smart tools' },
-    { b: '2', s: lang === 'mr' ? 'भाषा (EN + MR)' : 'Languages (EN + MR)' },
-    { b: '100%', s: lang === 'mr' ? 'फ्रंटएंड डेमो' : 'Frontend demo' },
-  ]
   const features = [
     { icon: 'listcheck', t: t.feat_1_t, d: t.feat_1_d },
     { icon: 'wrench', t: t.feat_2_t, d: t.feat_2_d },
@@ -35,22 +29,9 @@ export default function Home() {
           <span className="badge"><Icon name="sparkles" size={14} /> {t.hero_badge}</span>
           <h1>{t.hero_title_a} <span>{t.hero_title_b.split(' ')[0]} {t.hero_title_b.split(' ')[1] || ''}</span> <span className="violet">{t.hero_title_b.split(' ').slice(2).join(' ')}</span></h1>
           <p>{t.hero_desc}</p>
-          <div className="btn-row">
+          <div className="btn-row" style={{ marginTop: 22 }}>
             <button className="btn primary" onClick={() => nav('/solver')}><Icon name="rocket" size={17} /> {t.start_solving}</button>
             <button className="btn" onClick={() => nav('/dashboard')}><Icon name="compass" size={17} /> {t.explore_problems}</button>
-          </div>
-          <div className="hero-stats">
-            {stats.map((s) => <div key={s.s} className="stat"><b>{s.b}</b><span>{s.s}</span></div>)}
-          </div>
-          <div><span className="demo-pill"><Icon name="alert" size={14} /> {t.demo_note}</span></div>
-        </div>
-        <div className="hero-art">
-          <div className="chat-mock">
-            <div className="bubble user">{lang === 'mr' ? 'माझा शिष्यवृत्ती फॉर्म सबमिट होत नाही.' : 'My scholarship form is not submitting.'}</div>
-            <div className="bubble bot">{lang === 'mr' ? 'समजले! ही “फॉर्म सबमिशन” समस्या वाटते. २ सोपे प्रश्न विचारू का?' : 'Got it! This looks like a “Form Submission” issue. May I ask 2 quick questions?'}</div>
-            <div className="bubble user">{lang === 'mr' ? 'हो, विचारा.' : 'Yes, go ahead.'}</div>
-            <div className="bubble bot">{lang === 'mr' ? 'Preview + घोषणा टिक + एकदाच Final Submit. पूर्ण उपाय तयार आहे!' : 'Preview + declaration tick + one Final Submit. Full steps ready!'}</div>
-            <div className="typing">EduSolve demo assistant • frontend only</div>
           </div>
         </div>
       </section>
