@@ -76,11 +76,10 @@ function Kpi({ icon, label, value, sub }) {
     <div className="kpi">
       <div className="kpi-top">
         <span className="kpi-ico"><Icon name={icon} size={18} /></span>
-        <span className="kpi-dot" />
+        <span className="kpi-tag">{sub}</span>
       </div>
       <b>{value}</b>
       <span className="kpi-label">{label}</span>
-      <small className="muted">{sub}</small>
     </div>
   )
 }
@@ -123,8 +122,10 @@ function Overview({ lang, goFeedback }) {
           <div className="bars">
             {days.map((d, i) => (
               <div key={d} className="bar-col">
-                <span className="bar-val">{week[i] || 0}</span>
-                <div className="bar-track"><div className="bar" style={{ height: Math.max(8, (week[i] / maxV) * 100) + '%' }} /></div>
+                <div className="bar-stack">
+                  <span className={'bar-val' + (week[i] ? '' : ' zero')}>{week[i] || 0}</span>
+                  <div className="bar" style={{ height: week[i] ? Math.max(10, (week[i] / maxV) * 100) + '%' : '4%' }} />
+                </div>
                 <span className="bar-label">{dayLabel(d)}</span>
               </div>
             ))}
@@ -160,10 +161,17 @@ function Overview({ lang, goFeedback }) {
             </div>
           </div>
           <div className="rate-ring">
-            <b>{rate}<span>%</span></b>
-            <div>
+            <div className="ring-wrap">
+              <svg className="ring" viewBox="0 0 100 100" aria-hidden="true">
+                <circle className="ring-bg" cx="50" cy="50" r="42" />
+                <circle className="ring-fg" cx="50" cy="50" r="42" strokeDasharray={(rate * 2.639) + ' 264'} />
+              </svg>
+              <b className="ring-num">{rate}<span>%</span></b>
+            </div>
+            <div className="ring-legend">
               <span className="legend green"><i /> {lang === 'mr' ? 'सोडवले' : 'Solved'} <b>{solved}</b></span>
               <span className="legend amber"><i /> {lang === 'mr' ? 'उरले' : 'Open'} <b>{unsolved}</b></span>
+              <span className="legend grey"><i /> {lang === 'mr' ? 'एकूण' : 'Total'} <b>{fb.length}</b></span>
             </div>
           </div>
           <div className="split-bar"><div style={{ width: rate + '%' }} /></div>
@@ -351,7 +359,10 @@ export default function App() {
               <h1>{title[lang] || title.en}</h1>
               <p className="muted">{lang === 'mr' ? 'सर्व माहिती फक्त या ब्राउझरमध्ये. कोणताही सर्व्हर नाही.' : 'Everything lives in this browser only. No server anywhere.'}</p>
             </div>
-            <span className="chip tall"><span className="live-dot" /> {lang === 'mr' ? 'लाइव्ह डेमो' : 'Live demo'}</span>
+            <div className="head-chips">
+              <span className="chip"><Icon name="history" size={13} /> {new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+              <span className="chip live"><span className="live-dot" /> {lang === 'mr' ? 'लाइव्ह डेमो' : 'Live demo'}</span>
+            </div>
           </div>
 
           <div className="mobile-nav">
