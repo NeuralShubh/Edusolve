@@ -113,6 +113,7 @@ function PhotoResizer({ lang }) {
   const [w, setW] = useState(200)
   const [h, setH] = useState(230)
   const [quality, setQuality] = useState(0.8)
+  const [fit, setFit] = useState('fill')
 
   const onFile = (f) => {
     if (!f) return
@@ -126,12 +127,12 @@ function PhotoResizer({ lang }) {
       canvas.width = w; canvas.height = h
       const ctx = canvas.getContext('2d')
       ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, w, h)
-      // contain-fit draw
-      const scale = Math.min(w / img.width, h / img.height)
+      const scale = fit === 'fill'
+        ? Math.max(w / img.width, h / img.height)
+        : Math.min(w / img.width, h / img.height)
       const dw = img.width * scale, dh = img.height * scale
       ctx.drawImage(img, (w - dw) / 2, (h - dh) / 2, dw, dh)
       const url = canvas.toDataURL('image/jpeg', quality)
-      // real byte size of output
       const bytes = Math.round((url.length * 3) / 4)
       setOut({ url, kb: bytes / 1024 })
     }
@@ -145,6 +146,17 @@ function PhotoResizer({ lang }) {
           <input type="file" accept="image/*" onChange={(e) => onFile(e.target.files?.[0])} /></label>
         <div className="field"><span className="ss-label">Width px</span><input type="number" value={w} onChange={(e) => setW(+e.target.value || 200)} /></div>
         <div className="field"><span className="ss-label">Height px</span><input type="number" value={h} onChange={(e) => setH(+e.target.value || 230)} /></div>
+        <div className="field">
+          <span className="ss-label">{lang === 'mr' ? 'पद्धत' : 'Fit mode'}</span>
+          <div className="fit-seg">
+            <button type="button" className={fit === 'fill' ? 'on' : ''} onClick={() => { setFit('fill'); setOut(null) }}>
+              {lang === 'mr' ? 'भरा (कापा)' : 'Fill (crop)'}
+            </button>
+            <button type="button" className={fit === 'contain' ? 'on' : ''} onClick={() => { setFit('contain'); setOut(null) }}>
+              {lang === 'mr' ? 'पूर्ण बसवा' : 'Fit whole'}
+            </button>
+          </div>
+        </div>
         <SearchSelect label="Quality" value={String(quality)} onChange={(v) => setQuality(+v)}
           options={[{ value: '0.6', label: '0.6 (smaller)', icon: 'photo' }, { value: '0.8', label: '0.8 (balanced)', icon: 'photo' }, { value: '0.92', label: '0.92 (clearer)', icon: 'photo' }]} />
         <button className="btn primary small" disabled={!src} onClick={resize}><Icon name="scissors" size={14} /> Resize</button>
