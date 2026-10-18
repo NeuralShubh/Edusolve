@@ -17,7 +17,7 @@ export default function Home() {
   ]
   const actions = [
     { icon: 'chat', t: lang === 'mr' ? 'AI ला विचारा' : 'Ask AI', d: lang === 'mr' ? 'समस्या लिहा, उपाय मिळवा' : 'Describe it, get steps', to: '/solver' },
-    { icon: 'box', t: lang === 'mr' ? 'फाइल तपासा' : 'Check file', d: lang === 'mr' ? 'आकार व प्रकार' : 'Size and format', to: '/tools' },
+    { icon: 'eye', t: lang === 'mr' ? 'फाइल तपासा' : 'Check file', d: lang === 'mr' ? 'आकार व प्रकार' : 'Size and format', to: '/tools' },
     { icon: 'photo', t: lang === 'mr' ? 'फोटो ठरवा' : 'Fix photo', d: lang === 'mr' ? 'आकार बदला' : 'Resize it', to: '/tools' },
     { icon: 'grid', t: lang === 'mr' ? 'प्रकार पाहा' : 'Browse issues', d: lang === 'mr' ? '१२ समस्या प्रकार' : '12 categories', to: '/dashboard' },
   ]

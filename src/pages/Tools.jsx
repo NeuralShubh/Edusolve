@@ -6,7 +6,7 @@ import { SearchSelect } from '../components/PremiumUI'
 
 const TOOLS = [
   { id: 'docprep', icon: 'folder', en: 'Document preparation checklist', mr: 'कागदपत्र तयारी यादी' },
-  { id: 'filecheck', icon: 'box', en: 'File extension and size checker', mr: 'फाइल प्रकार व आकार तपासणी' },
+  { id: 'filecheck', icon: 'eye', en: 'File extension and size checker', mr: 'फाइल प्रकार व आकार तपासणी' },
   { id: 'photo', icon: 'photo', en: 'Photo and signature guidance + resizer', mr: 'फोटो व सही मार्गदर्शन + रिसायझर' },
   { id: 'formfill', icon: 'edit', en: 'Form-filling checklist', mr: 'फॉर्म भरणे यादी' },
   { id: 'presubmit', icon: 'checkcircle', en: 'Pre-submission verification', mr: 'सबमिशनपूर्व पडताळणी' },
@@ -171,7 +171,7 @@ function RequiredDocs() {
   const items = REQUIRED_DOCS[service]
   return (
     <div>
-      <div className="row">{Object.keys(REQUIRED_DOCS).map((s) => <button key={s} className={'pill'} onClick={() => { setService(s); setDone([]) }} style={service === s ? { background: '#2563eb', color: '#fff' } : {}}>{s}</button>)}</div>
+      <div className="row">{Object.keys(REQUIRED_DOCS).map((s) => <button key={s} className={'pill'} onClick={() => { setService(s); setDone([]) }} style={service === s ? { background: 'var(--accent)', borderColor: 'var(--accent)', color: '#fff' } : {}}>{s}</button>)}</div>
       <p className="muted small">{done.length}/{items.length} ready</p>
       {items.map((d, i) => (
         <label key={d} className="check"><input type="checkbox" checked={done.includes(i)} onChange={() => setDone(done.includes(i) ? done.filter((x) => x !== i) : [...done, i])} /> {d}</label>
@@ -185,16 +185,21 @@ export default function Tools() {
   const t = STRINGS[lang]
   const [active, setActive] = useState('docprep')
   const current = TOOLS.find((x) => x.id === active)
+  const toolOptions = TOOLS.map((tool) => ({
+    value: tool.id,
+    label: tool[lang] || tool.en,
+    icon: tool.icon,
+    search: (tool.en + ' ' + tool.mr).toLowerCase(),
+  }))
   return (
     <div>
       <h2 className="with-icon" style={{ margin: '4px 0' }}><Icon name="wrench" size={26} /> {t.tools_title}</h2>
       <p className="muted">{t.tools_sub}</p>
-      <div className="tool-nav">
-        {TOOLS.map((tool) => (
-          <button key={tool.id} className={active === tool.id ? 'active' : ''} onClick={() => setActive(tool.id)}>
-            <span className="with-icon"><Icon name={tool.icon} size={15} /> {tool[lang] || tool.en}</span>
-          </button>
-        ))}
+      <div className="tool-picker">
+        <SearchSelect label={lang === 'mr' ? 'साधन निवडा किंवा शोधा' : 'Pick or search a tool'}
+          value={active} onChange={setActive}
+          placeholder={lang === 'mr' ? 'साधन शोधा… उदा. फोटो, फाइल, यादी' : 'Search tools… e.g. photo, file, checklist'}
+          options={toolOptions} />
       </div>
       <div className="card">
         <h3 className="with-icon" style={{ marginTop: 0 }}><Icon name={current.icon} size={20} /> {current[lang]}</h3>

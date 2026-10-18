@@ -95,7 +95,7 @@ export default function Solver() {
       <p className="muted">{t.solver_sub}</p>
       <div className="solver-layout">
         <div className="card">
-          <h3 className="with-icon" style={{ marginTop: 0 }}><Icon name="sparkles" size={18} /> {lang === 'mr' ? 'उदाहरणे वापरून पहा' : 'Try an example'}</h3>
+          <h3 className="with-icon" style={{ marginTop: 0 }}><Icon name="bulb" size={18} /> {lang === 'mr' ? 'उदाहरणे वापरून पहा' : 'Try an example'}</h3>
           {['My scholarship form is not submitting.', 'OTP is not coming on my mobile.', 'Payment deducted but no receipt.', 'Photo upload rejected, file too large.', 'Page refresh erased my form data.'].map((ex) => (
             <div key={ex} style={{ marginBottom: 8 }}><button className="pill" onClick={() => handleUserText(ex)}>{ex}</button></div>
           ))}
