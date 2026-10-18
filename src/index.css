@@ -80,6 +80,9 @@ button { font-family: inherit; }
 .hero { position: relative; background: var(--card); border: 1px solid var(--line); border-radius: 20px; padding: 26px 20px; box-shadow: var(--shadow-sm); display: grid; grid-template-columns: 1fr; gap: 26px; align-items: center; }
 .badge { display: inline-flex; align-items: center; gap: 6px; background: var(--paper); border: 1px solid var(--line); color: var(--ink-soft); font-size: 11px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; padding: 7px 13px; border-radius: 999px; margin-bottom: 14px; }
 .badge .icon { color: var(--accent); }
+.hero > div { text-align: center; }
+.hero .badge { display: flex; width: fit-content; margin: 0 auto 16px; }
+.hero .btn-row { justify-content: center; }
 .hero h1 { font-size: 30px; line-height: 1.12; margin: 0 0 12px; letter-spacing: -0.03em; color: var(--ink); font-weight: 800; }
 .hero h1 span { color: var(--accent); }
 .hero h1 .violet { color: var(--ink); }
@@ -343,7 +346,7 @@ h2.with-icon, h3.with-icon, h4.with-icon { display: flex; }
   .hamburger, .mobile-wrap { display: none; }
   .tabbar { display: none; }
   .hero { grid-template-columns: 1fr; gap: 34px; padding: 54px 48px; border-radius: 24px; }
-  .hero > div { max-width: 820px; }
+  .hero > div { max-width: 820px; margin: 0 auto; }
   .admin-head { flex-direction: row; align-items: flex-start; justify-content: space-between; }
   .kpi-grid { grid-template-columns: repeat(4, 1fr); }
   .hero h1 { font-size: 46px; }
