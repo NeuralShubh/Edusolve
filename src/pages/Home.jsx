@@ -89,7 +89,7 @@ export default function Home() {
       <section className="cta-banner">
         <div>
           <h2>{lang === 'mr' ? 'तुमची फॉर्म समस्या आजच सोडवा' : 'Fix your form problem today'}</h2>
-          <p>{lang === 'mr' ? 'डेमो सहाय्यकाला विचारा किंवा स्मार्ट साधनांनी फाइल तपासा.' : 'Ask the demo assistant or verify your files with Smart Tools.'}</p>
+          <p>{lang === 'mr' ? 'सहाय्यकाला विचारा किंवा स्मार्ट साधनांनी फाइल तपासा.' : 'Ask the assistant or verify your files with Smart Tools.'}</p>
         </div>
         <div className="btn-row" style={{ marginTop: 0 }}>
           <button className="btn" onClick={() => nav('/solver')}><Icon name="chat" size={16} /> {t.start_solving}</button>

@@ -71,7 +71,6 @@ export function Footer() {
         <div>
           <div className="footer-logo">EduSolve <b>AI</b></div>
           <p className="muted">{t.footer_tag}</p>
-          <p className="demo-pill"><Icon name="alert" size={14} /> {t.demo_note}</p>
         </div>
         <div>
           <h4 className="with-icon"><Icon name="help" size={17} /> {t.footer_help}</h4>
@@ -82,7 +81,7 @@ export function Footer() {
           <p className="muted small">{t.footer_privacy_text}</p>
         </div>
       </div>
-      <div className="footer-bottom">EduSolve AI • College Project Demo • Frontend only • {new Date().getFullYear()}</div>
+      <div className="footer-bottom">EduSolve AI • Step-by-Step Student Guidance • {new Date().getFullYear()}</div>
     </footer>
   )
 }
@@ -136,7 +135,6 @@ export function Sidebar() {
         <button className="lang-btn side-lang" onClick={toggle}>
           <Icon name="languages" size={15} /> {lang === 'en' ? 'मराठी' : 'English'}
         </button>
-        <p className="demo-pill"><Icon name="alert" size={13} /> {lang === 'mr' ? 'नमुना प्रकल्प' : 'Demo project'}</p>
       </div>
     </aside>
   )

@@ -17,7 +17,7 @@ export default function Solver() {
   const [params] = useSearchParams()
   const [input, setInput] = useState('')
   const [messages, setMessages] = useState([
-    { from: 'bot', text: lang === 'mr' ? 'नमस्ते! मी EduSolve डेमो सहाय्यक आहे. तुमची समस्या सोप्या शब्दांत लिहा (उदा. “माझा शिष्यवृत्ती फॉर्म सबमिट होत नाही”).' : 'Hello! I am the EduSolve demo assistant. Describe your problem simply (e.g. “My scholarship form is not submitting”).' },
+    { from: 'bot', text: lang === 'mr' ? 'नमस्ते! मी EduSolve सहाय्यक आहे. तुमची समस्या सोप्या शब्दांत लिहा (उदा. “माझा शिष्यवृत्ती फॉर्म सबमिट होत नाही”).' : 'Hello! I am the EduSolve assistant. Describe your problem simply (e.g. “My scholarship form is not submitting”).' },
   ])
   const [session, setSession] = useState(null)
   const [solution, setSolution] = useState(null)
@@ -106,7 +106,7 @@ export default function Solver() {
         </div>
         <div>
           <div className="chat">
-            <div className="chat-head"><span className="avatar"><Icon name="bot" size={20} /></span><div><b>EduSolve</b><br /><span className="muted small">demo assistant • frontend only</span></div></div>
+            <div className="chat-head"><span className="avatar"><Icon name="bot" size={20} /></span><div><b>EduSolve</b><br /><span className="muted small">{lang === 'mr' ? 'मार्गदर्शन सहाय्यक' : 'guidance assistant'}</span></div></div>
             <div className="chat-body" ref={bodyRef}>
               {messages.map((m, i) => (
                 <div key={i} style={{ display: 'contents' }}>

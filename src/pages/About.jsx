@@ -11,13 +11,13 @@ export default function About() {
       <p className="muted">{t.footer_tag}</p>
       <div className="grid cols2" style={{ marginTop: 16 }}>
         <div className="card">
-          <h3 className="with-icon"><Icon name="target" size={19} /> {lang === 'mr' ? 'प्रकल्प उद्देश' : 'Project objective'}</h3>
+          <h3 className="with-icon"><Icon name="target" size={19} /> {lang === 'mr' ? 'EduSolve AI काय करते' : 'What EduSolve AI does'}</h3>
           <p className="muted">{t.hero_desc}</p>
           <ul className="muted small" style={{ lineHeight: 1.8 }}>
-            <li>{lang === 'mr' ? 'फ्रंटएंड डेमो. बॅकएंड, डेटाबेस, लॉगिन नाही.' : 'Frontend demo. No backend, database or login.'}</li>
-            <li>{lang === 'mr' ? 'नियम-आधारित डेमो इंजिन + पाठपुरावे प्रश्न.' : 'Rule-based demo engine + follow-up questions.'}</li>
+            <li>{lang === 'mr' ? 'संपूर्ण तुमच्या ब्राउझरमध्ये चालते. खाते, डेटाबेस किंवा लॉगिन नाही.' : 'Runs fully in your browser. No account, database or login.'}</li>
+            <li>{lang === 'mr' ? 'नियम-आधारित मार्गदर्शन इंजिन + पाठपुरावे प्रश्न.' : 'Rule-based guidance engine + follow-up questions.'}</li>
             <li>{lang === 'mr' ? 'खरे ब्राउझर फाइल तपासणे + इमेज रिसायझिंग.' : 'Real in-browser file checks + image resizing.'}</li>
-            <li>{lang === 'mr' ? 'खरे AI जोडलेले नाही. मार्गदर्शन सिम्युलेटेड आहे.' : 'No real AI connected. Guidance is simulated.'}</li>
+            <li>{lang === 'mr' ? 'मार्गदर्शन शिक्षणासाठी सिम्युलेटेड आहे.' : 'Guidance is simulated for learning.'}</li>
           </ul>
         </div>
         <div className="card">
@@ -26,7 +26,7 @@ export default function About() {
           <h3 className="with-icon"><Icon name="shield" size={19} /> {t.footer_privacy}</h3>
           <p className="muted small">{t.footer_privacy_text}</p>
           <h3 className="with-icon"><Icon name="cpu" size={19} /> {lang === 'mr' ? 'तंत्रज्ञान' : 'Tech used'}</h3>
-          <p className="muted small">React 18 + Vite 5 + React Router 6 • CSS only (no UI framework) • localStorage for preferences • Canvas API for resizing • Vercel-ready SPA.</p>
+          <p className="muted small">React 18 + Vite 5 + React Router 6 • CSS only (no UI framework) • localStorage for preferences • Canvas API for resizing • GitHub Pages ready.</p>
         </div>
       </div>
       <div className="card" style={{ marginTop: 16 }}>
