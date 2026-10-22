@@ -284,7 +284,7 @@ const [toast, showToast] = useToast()
 | `src/pages/Dashboard.jsx` | `Dashboard` | none (reads `?cat=` via `useSearchParams`) |
 | `src/pages/Solver.jsx` | `Solver` | none (reads `?q=` via `useSearchParams`) |
 | `src/pages/Tools.jsx` | `Tools` | none |
-| `src/pages/Report.jsx` | `Report` | none |
+| `src/pages/Report.jsx` | `Report` | none (reads the data source and time window from component state) |
 | `admin-app/src/App.jsx` | `App` | none |
 
 ### Query parameters
@@ -306,7 +306,7 @@ const [toast, showToast] = useToast()
 | `#/solver` | Solver | — |
 | `#/solver?q=My%20form%20is%20not%20submitting` | Solver | Auto-runs the query |
 | `#/tools` | Tools | — |
-| `#/report` | Report | The full project report — 17 sections, TOC, print, Markdown export |
+| `#/report` | Report | The graphical analytics report — KPI cards, charts, tables, data-source and time-window switches, print, Markdown export |
 | `#/<anything else>` | Home | Catch-all fallback |
 
 ---
@@ -371,7 +371,66 @@ Computed live from `CATEGORIES` and `SOLUTIONS` — it can never drift from the 
 
 ---
 
-## 12. `public/sw.js` — Service Worker
+## 12. `src/data/analytics.js` — the report data engine
+
+### Exports
+
+| Export | Type | Notes |
+|---|---|---|
+| `REPORT_DAYS` | `number` | `30` — the length of the generated dataset |
+| `RANGE_OPTIONS` | `number[]` | `[7, 14, 30]` — the time windows offered on the page |
+| `SCOPES` | `{ id, en, mr }[]` | `all`, `project`, `device` |
+| `SOURCES` | `{ id, en, mr }[]` | `solver`, `dashboard` |
+| `CATEGORY_PROFILE` | `object` | Per-category `weight` (how often it comes up) and `solve` (share solved) |
+| `CHART_COLORS` | `object` | `solved` green, `pending` amber, `accent` violet, `neutral` grey |
+| `buildProjectDataset(now?, days?)` | `Array<Row>` | Deterministic seeded 30-day sample |
+| `readDeviceData()` | `object` | Reads feedback, visits, recents and checklist from `localStorage` |
+| `buildAnalytics({ scope, days, now, device })` | `object` | The whole report model |
+| `analyticsMarkdown(a, lang)` | `string` | The current numbers as Markdown |
+| `matchCategory(text)` | `string` | Maps a free-text title back to a category id |
+| `dayKey(date)` / `shortDayLabel(key)` / `weekdayLabel(key, lang)` | `string` | Date helpers |
+
+### `buildAnalytics()` — the report model
+```ts
+{
+  scope: 'all' | 'project' | 'device'
+  days: number
+  generatedAt: number
+  totals: {
+    reported: number, solved: number, pending: number, rate: number,
+    categories: number, avgSolved: number, avgReported: number, streak: number,
+    bestDay: Day | null, busiestDay: Day | null
+  }
+  daily: { key, label, weekday, at, solved, pending, total, rate, visits }[]
+  categories: { id, icon, title: {en, mr}, total, solved, pending, rate, share }[]
+  ranked: Category[]        // categories sorted by total (most frequent first)
+  pendingRanked: Category[] // categories sorted by pending
+  sources: { id, en, mr, count, solved, pending, rate }[]
+  weekly: { label, from, to, solved, pending, total, rate }[]
+  cumulative: { key, label, value }[]
+  hasDeviceData: boolean
+  deviceCount: number
+  projectCount: number
+}
+```
+
+### `src/components/Charts.jsx` — chart primitives
+
+| Component | Props | Renders |
+|---|---|---|
+| `useWidth(fallback)` | — | `[ref, width]` — a `ResizeObserver` width hook |
+| `DonutChart` | `segments, size, thickness, gap, center` | Ring chart built from `stroke-dasharray` circles |
+| `ColumnChart` | `data, height, series, valueOnTop` | Stacked columns with grid, axis and value labels |
+| `AreaChart` | `data, height, color, valueKey, labelKey` | Gradient area + line + points |
+| `BarList` | `items, max, suffix` | Ranked horizontal bars, optionally split into parts |
+| `SplitBar` | `segments, height` | One 100 % stacked bar |
+| `Sparkline` | `data, width, height, color` | Tiny trend line for the KPI cards |
+| `Gauge` | `value, size, thickness, color, label` | 180° speedometer with a needle |
+| `Legend` | `items` | Colour key with counts |
+
+---
+
+## 13. `public/sw.js` — Service Worker
 
 | Event | Behaviour |
 |---|---|
@@ -383,7 +442,7 @@ Computed live from `CATEGORIES` and `SOLUTIONS` — it can never drift from the 
 
 ---
 
-## 13. `public/manifest.webmanifest`
+## 14. `public/manifest.webmanifest`
 
 | Field | Value |
 |---|---|
@@ -399,7 +458,7 @@ Computed live from `CATEGORIES` and `SOLUTIONS` — it can never drift from the 
 
 ---
 
-## 14. `vercel.json`
+## 15. `vercel.json`
 
 ```json
 { "rewrites": [{ "source": "/(.*)", "destination": "/" }] }
@@ -408,7 +467,7 @@ All routes fall back to `/index.html`. Not strictly required (hash routing), but
 
 ---
 
-## 15. npm scripts API
+## 16. npm scripts API
 
 | Script | Command | Effect |
 |---|---|---|

@@ -167,7 +167,22 @@ Create `src/pages/Help.jsx` with a default-exported component. The `Layout` (sid
 
 ### 4.6 Edit the in-app project report
 
-The report lives in `src/data/report.js` as `REPORT_SECTIONS` — an array of 17 sections. Each section is:
+The on-screen report is **graphical**. Two files drive it:
+
+| File | What lives there |
+|---|---|
+| `src/data/analytics.js` | The dataset and every aggregate — `buildAnalytics({ scope, days })` returns totals, daily buckets, per-category, per-source, weekly and cumulative series |
+| `src/components/Charts.jsx` | The SVG chart primitives — `DonutChart`, `ColumnChart`, `AreaChart`, `BarList`, `SplitBar`, `Sparkline`, `Gauge`, `Legend` |
+| `src/pages/Report.jsx` | The page itself — KPI cards, panels, tables, controls and the bilingual labels |
+| `src/data/report.js` | The long written document (`REPORT_SECTIONS`), still exportable as Markdown |
+
+**To change the numbers**, edit `CATEGORY_PROFILE` in `src/data/analytics.js` — `weight` is how often a problem type comes up, `solve` is the share of those that get solved. The dataset is seeded (`mulberry32(20251022)`), so the numbers are identical on every device and every reload.
+
+**To add a chart**, drop a new component in `src/components/Charts.jsx` (or reuse an existing one) and add a `<Panel>` to `src/pages/Report.jsx`. Every chart measures its own container with `useWidth()`, so no fixed pixel width is needed.
+
+**Always add the Marathi version too** — `src/pages/Report.jsx` keeps its own `TXT.en` / `TXT.mr` label table, so a missing `mr` string shows the English one.
+
+**To edit the written document**, the section format is:
 
 ```js
 {
@@ -186,10 +201,6 @@ The report lives in `src/data/report.js` as `REPORT_SECTIONS` — an array of 17
 Supported block types: `p`, `h3`, `ul`, `ol`, `table`, `note`, `code`, `qa`, plus three live blocks — `categories`, `storage`, `design` — generated at render time from `CATEGORIES`, `STORAGE_KEYS` and `DESIGN_TOKENS`.
 
 A table cell can be a plain string (language independent) or `{ en, mr }` (auto-switching).
-
-**Always add the Marathi version too** — `src/pages/Report.jsx` reads `value[lang] || value.en`, so a missing `mr` silently falls back to English.
-
-To add a new section, append it to `REPORT_SECTIONS` with a unique `id`, the next `no`, an icon name that exists in `src/components/icons.jsx`, and matching `en`/`mr` headings. The table of contents is generated from the same array, so nothing else needs changing.
 
 ### 4.7 Add an admin tab
 

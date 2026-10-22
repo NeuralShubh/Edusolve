@@ -45,6 +45,9 @@ const PATHS = {
   help: (<><circle cx="12" cy="12" r="9" /><path d="M9.5 9.5a2.5 2.5 0 015 .3c0 1.7-2.5 2-2.5 3.7" /><path d="M12 17h.01" /></>),
   gradcap: (<><path d="M2 9l10-5 10 5-10 5L2 9z" /><path d="M6 11.5V16c0 1.5 2.7 3 6 3s6-1.5 6-3v-4.5" /><path d="M22 9v5" /></>),
   chevron: (<><path d="M9 6l6 6-6 6" /></>),
+  chart: (<><path d="M3 21h18" /><path d="M6.5 21v-7" /><path d="M12 21V6" /><path d="M17.5 21v-11" /></>),
+  calendar: (<><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M8 3v4M16 3v4M3 10h18" /></>),
+  pie: (<><path d="M12 3a9 9 0 109 9h-9V3z" /><path d="M14.5 2.5A9 9 0 0121.5 9.5h-7V2.5z" /></>),
 }
 
 export function Icon({ name, size = 20, strokeWidth = 2, className = '' }) {

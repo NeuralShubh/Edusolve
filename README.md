@@ -128,7 +128,7 @@ The i18n system is a plain object — no library, no build step. See [`docs/LANG
 | `/dashboard` | **Dashboard** | Searchable category picker, 12 category cards, active solution panel, Recently viewed (max 6), Saved solutions, 5-item task checklist with progress % |
 | `/solver` | **AI Problem Solver** | Chat interface with keyword detection, 2 follow-up questions, structured solution card, 5 one-click example prompts, Solved / Not Solved feedback, save, clear |
 | `/tools` | **Smart Tools** | Searchable tool picker + 6 tools (see below) |
-| `/report` | **Project Report** | The full project report in-app — 17 sections, scroll-spy contents, print-to-PDF, Markdown export |
+| `/report` | **Project Report** | A fully graphical analytics report — solved / pending / most-frequent / per-day charts, KPI cards and tables, print-to-PDF, Markdown export |
 | `*` | Home | Any unknown route falls back to Home |
 
 ### 4.2 Smart Tools (the parts that genuinely work)
@@ -144,16 +144,34 @@ The i18n system is a plain object — no library, no build step. See [`docs/LANG
 
 ### 4.3 The Project Report section (`/report`)
 
-A full project report built into the app — the same document that lives in `docs/`, rendered live.
+A **graphical** analytics report built into the app. Every number on the page is a chart, a KPI card or a table — no walls of text.
 
-| Feature | What it does |
+| Chart / card | What it shows |
 |---|---|
-| **17 sections** | Abstract · Problem Statement · Objectives · Scope · Technology Stack & Languages · System Architecture · The 12 Categories · The Guidance Engine · Module Description · Features Delivered · Data Storage & Privacy · Design System · Testing · Limitations · Future Scope · Viva Q&A · Conclusion |
-| **Scroll-spy contents** | A sticky table of contents that highlights the section you are reading; click to jump. Becomes a vertical rail from 961 px. |
-| **Print / Save as PDF** | A dedicated `@media print` stylesheet strips the navbar, sidebar, footer and tab bar, tightens the typography to A4 and expands every viva answer. |
-| **Markdown export** | One click downloads the whole report as a `.md` file, in the language you are currently viewing. |
-| **Live data** | The category table, storage table, design-token table and every statistic are computed from the real modules at render time, so the report can never drift from the code. |
-| **Bilingual** | Every section heading, paragraph, list and table cell switches between English and Marathi with the global toggle. |
+| **KPI cards (6)** | Problems reported · Problems solved · Problems pending · Solve rate % · Solved per day · Most frequent problem — each with a sparkline where a trend exists |
+| **Solved vs pending (donut)** | Share of every reported problem, with the exact solved / pending / total counts |
+| **Solve rate (gauge)** | Radial speedometer plus best day, busiest day, solved-day streak and daily average |
+| **Problems solved in one day (stacked columns)** | Day-by-day solved (green) on top of still-pending (amber), with the total above every column |
+| **Most frequently generated problems (bars)** | All 12 problem types ranked by how often they come up, each bar split into solved / pending |
+| **Solve rate by problem type (bars)** | Percentage closed per problem type, colour-coded green / amber |
+| **Cumulative problems solved (area)** | Running total of solved problems across the window |
+| **Weekly comparison (columns)** | Solved vs pending, week over week |
+| **Where problems are reported from (split bars)** | AI Problem Solver vs Dashboard, with counts and rate |
+| **Pending problems — help desk list (table)** | Problem types with the biggest open queue |
+| **Day-wise result (table)** | Solved, pending, total and rate for every single day |
+
+| Control | What it does |
+|---|---|
+| **Data source** | `All data` (project dataset + this browser) · `Project dataset` (the 30-day sample) · `This device` (only what you solved here) |
+| **Time window** | Last 7, 14 or 30 days — every chart, card and table re-computes instantly |
+| **Print / Save as PDF** | A dedicated `@media print` stylesheet strips the navbar, sidebar, footer and tab bar and lays the charts out on A4 |
+| **Download report (.md)** | Downloads the current analytics numbers as a Markdown report |
+| **Full document (.md)** | Downloads the long written project document that lives in `docs/` |
+
+The long-form written document is still available as a one-click Markdown export, and the chart code lives in `src/components/Charts.jsx` — hand-written SVG, **no chart library and no new dependency**.
+
+The dataset is produced by `src/data/analytics.js`: a deterministic, seeded 30-day sample (the same numbers on every device) merged with the real Solved / Not-Solved feedback stored in this browser, so the report is never empty and never drifts from the code.
+
 
 ### 4.4 File size presets (built into the checker)
 
@@ -256,15 +274,19 @@ Taniya/                          ← repository root (project folder name)
 │   ├── App.jsx                  LanguageProvider → HashRouter → Layout → Routes
 │   ├── index.css                Student design system + all component styles
 │   ├── components/
-│   │   ├── icons.jsx            43 inline SVG icons + <Icon> component
+│   │   ├── icons.jsx            46 inline SVG icons + <Icon> component
 │   │   ├── ui.jsx               Layout, Navbar, Sidebar, Footer, MobileMenu,
 │   │   │                        MobileTabBar, Logo, CategoryCard, SolutionCard
-│   │   └── PremiumUI.jsx        SearchSelect (searchable combobox), Toast, useToast
+│   │   ├── PremiumUI.jsx        SearchSelect (searchable combobox), Toast, useToast
+│   │   └── Charts.jsx           Hand-written SVG charts: Donut, Column, Area,
+│   │                            BarList, SplitBar, Sparkline, Gauge, Legend
 │   ├── context/
 │   │   └── LanguageContext.jsx  en/mr provider + useLang() hook
 │   ├── data/
 │   │   ├── categories.js        12 categories + full solution bank + detectCategory()
-│   │   └── report.js            Project report content, live stats, storage + design tables
+│   │   ├── report.js            Project report content, live stats, storage + design tables
+│   │   ├── analytics.js         30-day dataset, device merge, all report aggregates
+│   │   └── reportExport.js      Markdown export of the written document
 │   ├── engine/
 │   │   └── solverEngine.js      startSession / buildSolution / fallbackSolution
 │   ├── i18n/
@@ -276,7 +298,7 @@ Taniya/                          ← repository root (project folder name)
 │       ├── Dashboard.jsx        Categories, search, solution, recent, saved, checklist
 │       ├── Solver.jsx           Chat flow, follow-ups, solution card, feedback
 │       ├── Tools.jsx            6 tools incl. real file checker + canvas resizer
-│       └── Report.jsx           In-app project report — TOC, print, Markdown export
+│       └── Report.jsx           Graphical analytics report — KPI cards, charts, tables
 │
 ├── admin-app/                   ── SEPARATE ADMIN APP ──
 │   ├── index.html               Admin HTML shell (noindex, no PWA)

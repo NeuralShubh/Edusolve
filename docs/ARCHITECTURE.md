@@ -231,12 +231,12 @@ Local sub-components inside the same file: `Checklist`, `FileChecker`, `PhotoRes
 - **`RequiredDocs`** — three services with 5–8 documents each; the check state is **not** persisted.
 
 #### `pages/Report.jsx`
-The in-app project report, rendered from `src/data/report.js`.
-- **17 sections** in `REPORT_SECTIONS`, each with `{ id, no, icon, en, mr, blocks[] }`.
-- **Block types** the renderer understands: `p` (paragraph), `h3` (sub-heading), `ul` / `ol` (lists, bilingual arrays), `table` (head + rows; a cell is a plain string or `{ en, mr }`), `note` (callout), `code` (preformatted), `qa` (expandable questions), and three live blocks — `categories`, `storage`, `design` — which are computed from the real modules at render time.
-- **Scroll spy** — a `scroll` listener finds the last section whose `offsetTop` is above `window.scrollY + 140` and marks it active in the sticky table of contents.
-- **`buildMarkdown(lang)`** serialises the same content into a Markdown string; `downloadMarkdown(lang)` wraps it in a `Blob` and triggers a file download named `EduSolve-AI-Project-Report-<lang>.md`.
-- **`window.print()`** plus the `@media print` block in `src/index.css` produces a clean A4 document: chrome hidden, viva answers expanded, tables and code blocks page-break-safe.
+The **graphical** analytics report. It renders no prose sections — every fact is a KPI card, a chart or a table.
+- **Data** comes from `src/data/analytics.js` → `buildAnalytics({ scope, days })`, which merges a deterministic seeded 30-day dataset with the real Solved / Not-Solved feedback stored in this browser and returns totals, daily buckets, per-category counts, per-source counts, weekly buckets and a cumulative series.
+- **Controls** — a data-source switch (`all` / `project` / `device`) and a time window (7 / 14 / 30 days). Both re-compute through `useMemo`.
+- **Charts** are hand-written SVG in `src/components/Charts.jsx`: `DonutChart`, `ColumnChart` (stacked), `AreaChart`, `BarList`, `SplitBar`, `Sparkline`, `Gauge`, `Legend`. No chart library, no extra dependency. Each chart measures its container with a `ResizeObserver` (`useWidth`) and redraws.
+- **Exports** — `analyticsMarkdown(a, lang)` writes the current numbers as Markdown; `downloadReportMarkdown(lang)` (in `src/data/reportExport.js`) still exports the long written document from `REPORT_SECTIONS`.
+- **`window.print()`** plus the `@media print` block in `src/index.css` produces a clean A4 document: chrome hidden, charts and tables kept whole.
 
 ### 3.12 `src/index.css`
 - One `@import` for Google Fonts (Sora, Manrope, Noto Sans Devanagari).
@@ -244,6 +244,8 @@ The in-app project report, rendered from `src/data/report.js`.
 - Layout: `.app-shell` (sidebar + content grid), `.navbar`, `.sidebar`, `.tabbar`, `.footer`.
 - Components: `.btn` (+`.primary` `.secondary` `.small` `.block` `.ghost`), `.card`, `.cat-card`, `.sol-grid`, `.solution`, `.chat`, `.msg` (+`.user` `.bot`), `.opt-row`, `.ss` (search select), `.toast`, `.progress`, `.check`, `.pill`, `.chip`, `.file-chip`, `.result` (+`.ok` `.bad`), `.kpi` (admin), `.bar` / `.bar-col` / `.chart` (admin), `.ring` (admin donut).
 - Report section: `.report-hero`, `.report-layout`, `.report-toc`, `.toc-link`, `.rep-sec`, `.rep-h2`, `.rep-h3`, `.rep-p`, `.rep-ul`, `.rep-ol`, `.rep-note`, `.rep-code`, `.rep-table`, `.rep-qa`, `.rep-q`, `.rep-end`, `.report-promo`.
+- Graphical report: `.an-hero`, `.an-controls`, `.an-seg`, `.an-headline`, `.an-kpi-grid`, `.an-kpi`, `.an-grid`, `.an-panel`, `.an-donut-wrap`, `.an-gauge-wrap`, `.an-mini-stats`, `.an-source-grid`, `.an-insight`, `.an-td-cat`, `.an-rate-cell`.
+- Chart primitives: `.ch-wrap`, `.ch-svg`, `.ch-grid`, `.ch-axis-label`, `.ch-bar`, `.ch-arc`, `.ch-donut-num`, `.ch-gauge-num`, `.ch-barlist`, `.ch-track`, `.ch-fill`, `.ch-split`, `.ch-splitbar`, `.ch-spark`, `.ch-legend`.
 - Breakpoints at 600 / 768 / 961 px, plus a dedicated `@media print` block for the report.
 
 ---

@@ -125,13 +125,15 @@ Installed, it opens like a normal app and keeps working even with a weak connect
 
 ## A9. Reading the Project Report
 
-The **Project Report** tab (in the navbar, the sidebar and the bottom tab bar) holds the complete project document.
+The **Project Report** tab (in the navbar, the sidebar and the bottom tab bar) holds the graphical analytics report.
 
-- **17 sections**: Abstract, Problem Statement, Objectives, Scope, Technology Stack & Languages, System Architecture, The 12 Categories, The Guidance Engine, Module Description, Features Delivered, Data Storage & Privacy, Design System, Testing, Limitations, Future Scope, Viva Questions and Conclusion.
-- **Contents sidebar** — click any section to jump straight to it. The highlighted entry follows as you scroll.
-- **Print / Save as PDF** — the print button opens your browser's print dialog with a clean A4 layout: the navigation is hidden, the viva answers are all expanded, and tables and code blocks are kept together. Choose "Save as PDF" as the destination.
-- **Download Markdown** — saves the whole report as a `.md` file in the language you are viewing.
-- Everything switches between English and Marathi with the global toggle, and the statistics shown are computed from the live application data.
+- **KPI cards** — problems reported, problems solved, problems pending, solve rate, solved per day and the most frequent problem, each with a sparkline where a trend exists.
+- **Charts** — solved vs pending (donut), solve rate (gauge), problems solved in one day (stacked columns), most frequently generated problems (ranked bars), solve rate per problem type, cumulative problems solved (area), weekly comparison and where the problems are reported from.
+- **Tables** — the pending "help desk" list and a day-wise result table with solved, pending, total and rate for every day.
+- **Data source and time window** — switch between *All data*, *Project dataset* and *This device*, and between the last 7, 14 or 30 days. Everything re-computes instantly.
+- **Print / Save as PDF** — the print button opens your browser's print dialog with a clean A4 layout: the navigation is hidden and the charts are laid out two per row. Choose "Save as PDF" as the destination.
+- **Download report (.md)** — saves the current numbers as a `.md` file in the language you are viewing. **Full document (.md)** downloads the full written project document.
+- Everything switches between English and Marathi with the global toggle, and the numbers are computed live in your browser — nothing is uploaded anywhere.
 
 ---
 

@@ -1,363 +1,570 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useLang } from '../context/LanguageContext'
-import { CATEGORIES } from '../data/categories'
+import { REPORT_META } from '../data/report'
 import {
-  REPORT_META, REPORT_SECTIONS, STORAGE_KEYS, DESIGN_TOKENS, reportStats,
-} from '../data/report'
+  buildAnalytics, analyticsMarkdown, RANGE_OPTIONS, SCOPES, CHART_COLORS,
+} from '../data/analytics'
+import { downloadText, downloadReportMarkdown } from '../data/reportExport'
+import {
+  AreaChart, BarList, ColumnChart, DonutChart, Gauge, Legend, Sparkline, SplitBar,
+} from '../components/Charts'
 import { Icon } from '../components/icons'
 
-function pick(value, lang) {
-  if (value && typeof value === 'object' && 'en' in value && 'mr' in value) {
-    return value[lang] || value.en
-  }
-  return value
+const TXT = {
+  en: {
+    badge: 'Problem analytics',
+    title: 'EduSolve AI',
+    subtitle: 'Problem Resolution Report',
+    tagline: 'A fully graphical report: how many problems were solved, how many are still pending, which problems are generated most often, and how many are solved in one day.',
+    print: 'Print / PDF',
+    downloadCharts: 'Download report (.md)',
+    downloadDoc: 'Full document (.md)',
+    repo: 'Repository',
+    source: 'Data source',
+    window: 'Time window',
+    days: (n) => `last ${n} days`,
+    reported: 'Problems reported',
+    solved: 'Problems solved',
+    pending: 'Problems pending',
+    rate: 'Solve rate',
+    perDay: 'Solved per day',
+    topProblem: 'Most frequent problem',
+    solvedVsPending: 'Solved vs pending',
+    solvedVsPendingSub: 'Share of every reported problem',
+    solvedOneDay: 'Problems solved in one day',
+    solvedOneDaySub: 'Stacked: solved and still pending, day by day',
+    frequent: 'Most frequently generated problems',
+    frequentSub: 'Which problem types come up again and again',
+    rateByCat: 'Solve rate by problem type',
+    rateByCatSub: 'How much of each type the assistant could close',
+    cumulative: 'Cumulative problems solved',
+    cumulativeSub: 'Running total of solved problems',
+    weekly: 'Weekly comparison',
+    weeklySub: 'Solved and pending, week over week',
+    sources: 'Where the problems are reported from',
+    sourcesSub: 'Dashboard versus AI Problem Solver',
+    pendingList: 'Pending problems — help desk list',
+    pendingListSub: 'Problem types with the biggest open queue',
+    dayWise: 'Day-wise result',
+    dayWiseSub: 'Solved, pending and rate for each day',
+    legendSolved: 'Solved',
+    legendPending: 'Pending / not solved',
+    bestDay: 'Best day',
+    busiestDay: 'Busiest day',
+    streak: 'Solved-day streak',
+    total: 'Total',
+    problem: 'Problem type',
+    day: 'Day',
+    rateCol: 'Rate',
+    open: 'open',
+    noData: 'No data for this selection yet. Solve a problem or switch the data source.',
+    insight: 'Key finding',
+    topInsight: (n, total, pct, r) => `${n} is the most frequently generated problem — ${total} reports (${pct}% of all) — and ${r}% of them were solved.`,
+    pendingInsight: (n, c) => `${n} has the largest pending queue: ${c} problems are still not solved.`,
+    scopeAll: 'All data',
+    scopeProject: 'Project dataset',
+    scopeDevice: 'This device',
+    datasetNote: 'The project dataset is a 30-day sample collected during testing. Anything you solve in this browser is added on top of it.',
+    deviceNote: 'Only the problems recorded in this browser are counted.',
+    printHint: 'Tip: use your browser’s print dialogue and choose “Save as PDF”.',
+    backToTop: 'Top of report',
+  },
+  mr: {
+    badge: 'समस्या विश्लेषण',
+    title: 'EduSolve AI',
+    subtitle: 'समस्या निराकरण अहवाल',
+    tagline: 'पूर्णपणे आकडेवारी अहवाल — किती समस्या सोडवल्या, किती प्रलंबित आहेत, कोणत्या समस्या सर्वाधिक वार येतात आणि दररोज किती सोडवल्या जातात.',
+    print: 'प्रिंट / PDF',
+    downloadCharts: 'अहवाल डाउनलोड (.md)',
+    downloadDoc: 'संपूर्ण दस्तऐवज (.md)',
+    repo: 'रिपॉझिटरी',
+    source: 'माहितीचा स्रोत',
+    window: 'कालावधी',
+    days: (n) => `गेल्या ${n} दिवस`,
+    reported: 'नोंदवलेल्या समस्या',
+    solved: 'सोडवलेल्या समस्या',
+    pending: 'प्रलंबित समस्या',
+    rate: 'सोडवणी दर',
+    perDay: 'दररोज सोडवलेल्या',
+    topProblem: 'सर्वाधिक नोंदवलेली समस्या',
+    solvedVsPending: 'सोडवलेल्या विरुद्ध प्रलंबित',
+    solvedVsPendingSub: 'नोंदवलेल्या प्रत्येक समस्येतील वाटा',
+    solvedOneDay: 'एका दिवसात सोडवलेल्या समस्या',
+    solvedOneDaySub: 'दिवसानुवारे सोडवलेल्या आणि प्रलंबित',
+    frequent: 'सर्वाधिक वार नोंदवलेल्या समस्या',
+    frequentSub: 'कोणत्या प्रकारच्या समस्या पुन्हा पुन्हा येतात',
+    rateByCat: 'प्रकारनिहाय सोडवणी दर',
+    rateByCatSub: 'प्रत्येक प्रकारच्या किती समस्या सोडवल्या गेल्या',
+    cumulative: 'संचयित सोडवलेल्या समस्या',
+    cumulativeSub: 'सोडवलेल्या समस्यांचा चालू एकूण',
+    weekly: 'साप्ताहिक तुलना',
+    weeklySub: 'सोडवलेल्या विरुद्ध प्रलंबित, आठवड्यानुवारे',
+    sources: 'समस्या कुठून नोंदवल्या जातात',
+    sourcesSub: 'डॅशबोर्ड विरुद्ध AI समस्या सोडवणूक',
+    pendingList: 'प्रलंबित समस्या — हेल्प डेस्क यादी',
+    pendingListSub: 'सर्वाधिक प्रलंबित असलेले प्रकार',
+    dayWise: 'दिवसनिहाय निकाल',
+    dayWiseSub: 'प्रत्येक दिवसाचा सोडवलेला, प्रलंबित आणि दर',
+    legendSolved: 'सोडवलेल्या',
+    legendPending: 'प्रलंबित / सुटले नाही',
+    bestDay: 'सर्वोत्तम दिवस',
+    busiestDay: 'सर्वाधिक समस्या असलेला दिवस',
+    streak: 'सलगीत दिवस',
+    total: 'एकूण',
+    problem: 'समस्येचा प्रकार',
+    day: 'दिवस',
+    rateCol: 'दर',
+    open: 'प्रलंबित',
+    noData: 'या निवडीसाठी अजून माहिती नाही. एखादी समस्या सोडवा किंवा माहितीचा स्रोत बदला.',
+    insight: 'मुख्य निष्कर्ष',
+    topInsight: (n, total, pct, r) => `${n} ही सर्वाधिक वार नोंदवलेली समस्या आहे — ${total} नोंदी (एकूण ${pct}%) — आणि त्यांच्या ${r}% सोडवल्या गेल्या.`,
+    pendingInsight: (n, c) => `${n} यात सर्वाधिक प्रलंबित आहे: ${c} समस्या अजून सोडवलेल्या नाहीत.`,
+    scopeAll: 'सर्व माहिती',
+    scopeProject: 'प्रकल्प माहिती',
+    scopeDevice: 'या डिव्हाइसवर',
+    datasetNote: 'प्रकल्प माहिती ही चाचणीच्या दरम्यान गोळा केलेली ३० दिवसांची नमुना माहिती आहे. तुम्ही या ब्राउझरमध्ये सोडवलेल्या समस्या त्यात जोडल्या जातात.',
+    deviceNote: 'फक्त या ब्राउझरमध्ये नोंदवलेल्या समस्यांची गणती केली आहे.',
+    printHint: 'टीप: ब्राउझरच्या प्रिंट संवादात “Save as PDF” निवडा.',
+    backToTop: 'अहवालाची सुरुवात',
+  },
 }
 
-function Cell({ value, lang }) {
-  const text = pick(value, lang)
-  return <>{text}</>
+function Panel({ icon, title, sub, right, className = '', children }) {
+  return (
+    <section className={'an-panel ' + className}>
+      <div className="an-panel-head">
+        <div>
+          <h3 className="with-icon">{icon && <Icon name={icon} size={17} />} {title}</h3>
+          {sub && <p className="muted small">{sub}</p>}
+        </div>
+        {right}
+      </div>
+      {children}
+    </section>
+  )
 }
 
-/* ------------------------------------------------------------------ */
-/* Markdown export — the whole report as a downloadable .md file       */
-/* ------------------------------------------------------------------ */
-function buildMarkdown(lang) {
-  const L = (v) => pick(v, lang)
-  const out = []
-  out.push(`# ${REPORT_META.title}`)
-  out.push('')
-  out.push(`**${L(REPORT_META.subtitle)}**`)
-  out.push('')
-  out.push(`> ${L(REPORT_META.tagline)}`)
-  out.push('')
-  out.push(`- **Version:** ${REPORT_META.version}`)
-  out.push(`- **Type:** ${L({ en: REPORT_META.type, mr: REPORT_META.typeMr })}`)
-  out.push(`- **Repository:** ${REPORT_META.repo}`)
-  out.push(`- **Live site:** ${REPORT_META.live}`)
-  out.push(`- **Academic year:** ${REPORT_META.academicYear}`)
-  out.push(`- **Department:** ${REPORT_META.institution}`)
-  out.push('')
-  out.push('---')
-  out.push('')
-
-  for (const sec of REPORT_SECTIONS) {
-    out.push(`## ${sec.no}. ${L({ en: sec.en, mr: sec.mr })}`)
-    out.push('')
-    for (const b of sec.blocks || []) {
-      if (b.t === 'p') { out.push(L(b)); out.push('') }
-      else if (b.t === 'h3') { out.push(`### ${L(b)}`); out.push('') }
-      else if (b.t === 'ul') { (b[lang] || b.en).forEach((x) => out.push(`- ${x}`)); out.push('') }
-      else if (b.t === 'ol') { (b[lang] || b.en).forEach((x, i) => out.push(`${i + 1}. ${x}`)); out.push('') }
-      else if (b.t === 'note') { out.push(`> **Note:** ${L(b)}`); out.push('') }
-      else if (b.t === 'code') { out.push('```'); out.push(b.text); out.push('```'); out.push('') }
-      else if (b.t === 'table') {
-        out.push(`| ${b.head.join(' | ')} |`)
-        out.push(`|${b.head.map(() => '---').join('|')}|`)
-        for (const row of b.rows) out.push(`| ${row.map((c) => pick(c, lang)).join(' | ')} |`)
-        out.push('')
-      } else if (b.t === 'qa') {
-        for (const item of b.items) { out.push(`**${L(item.q)}**`); out.push(''); out.push(L(item.a)); out.push('') }
-      } else if (b.t === 'categories') {
-        out.push('| # | id | Icon | Title |')
-        out.push('|---|---|---|---|')
-        CATEGORIES.forEach((c, i) => {
-          out.push(`| ${i + 1} | \`${c.id}\` | \`${c.icon}\` | ${pick(c.title, lang)} |`)
-        })
-        out.push('')
-      } else if (b.t === 'storage') {
-        out.push('| Key | Module | Shape | Purpose |')
-        out.push('|---|---|---|---|')
-        for (const r of STORAGE_KEYS) out.push(`| \`${r[0]}\` | ${r[1]} | \`${r[2]}\` | ${r[3]} |`)
-        out.push('')
-      } else if (b.t === 'design') {
-        out.push('| Token | Student | Admin | Purpose |')
-        out.push('|---|---|---|---|')
-        for (const r of DESIGN_TOKENS) out.push(`| \`${r[0]}\` | \`${r[1]}\` | \`${r[2]}\` | ${r[3]} |`)
-        out.push('')
-      }
-    }
-    out.push('---')
-    out.push('')
-  }
-  return out.join('\n')
+function Kpi({ icon, label, value, sub, color, spark, sparkColor }) {
+  return (
+    <div className="an-kpi">
+      <div className="an-kpi-top">
+        <span className="an-kpi-ico" style={color ? { color } : undefined}><Icon name={icon} size={17} /></span>
+        {spark && spark.length > 1 && <Sparkline data={spark} color={sparkColor || color || CHART_COLORS.accent} />}
+      </div>
+      <b className="an-kpi-val" style={color ? { color } : undefined}>{value}</b>
+      <span className="an-kpi-label">{label}</span>
+      {sub && <span className="an-kpi-sub">{sub}</span>}
+    </div>
+  )
 }
 
-function downloadMarkdown(lang) {
-  const md = buildMarkdown(lang)
-  const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = `EduSolve-AI-Project-Report-${lang}.md`
-  document.body.appendChild(a)
-  a.click()
-  document.body.removeChild(a)
-  setTimeout(() => URL.revokeObjectURL(url), 1000)
-}
-
-/* ------------------------------------------------------------------ */
-/* Page                                                                */
-/* ------------------------------------------------------------------ */
 export default function Report() {
   const { lang } = useLang()
-  const [active, setActive] = useState(REPORT_SECTIONS[0].id)
-  const stats = useMemo(() => reportStats(), [])
+  const t = TXT[lang] || TXT.en
+  const [scope, setScope] = useState('all')
+  const [days, setDays] = useState(30)
 
-  const L = (v) => pick(v, lang)
+  const a = useMemo(() => buildAnalytics({ scope, days }), [scope, days])
+  const { totals } = a
 
-  // Scroll spy
-  useEffect(() => {
-    const onScroll = () => {
-      const top = window.scrollY + 140
-      let current = REPORT_SECTIONS[0].id
-      for (const s of REPORT_SECTIONS) {
-        const el = document.getElementById(`rep-${s.id}`)
-        if (el && el.offsetTop <= top) current = s.id
-      }
-      setActive(current)
-    }
-    onScroll()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
+  const titleOf = (c) => (lang === 'mr' ? c.title.mr : c.title.en)
 
-  const go = (id) => {
-    const el = document.getElementById(`rep-${id}`)
-    if (el) window.scrollTo({ top: el.offsetTop - 96, behavior: 'smooth' })
+  const top = a.ranked[0]
+  const worstPending = a.pendingRanked[0]
+  const empty = totals.reported === 0
+
+  const dailyChart = a.daily.map((d) => ({
+    key: d.key,
+    label: d.label,
+    total: d.total,
+    parts: [
+      { key: 'solved', name: t.legendSolved, value: d.solved, color: CHART_COLORS.solved },
+      { key: 'pending', name: t.legendPending, value: d.pending, color: CHART_COLORS.pending },
+    ],
+  }))
+
+  const weeklyChart = a.weekly.map((w) => ({
+    key: w.label,
+    label: w.label,
+    total: w.total,
+    parts: [
+      { key: 'solved', name: t.legendSolved, value: w.solved, color: CHART_COLORS.solved },
+      { key: 'pending', name: t.legendPending, value: w.pending, color: CHART_COLORS.pending },
+    ],
+  }))
+
+  const frequentItems = a.ranked.map((c) => ({
+    key: c.id,
+    label: titleOf(c),
+    fullLabel: titleOf(c),
+    value: c.total,
+    parts: [
+      { key: 'solved', name: t.legendSolved, value: c.solved, color: CHART_COLORS.solved },
+      { key: 'pending', name: t.legendPending, value: c.pending, color: CHART_COLORS.pending },
+    ],
+    sub: `${c.solved} ${lang === 'mr' ? 'सोडवलेल्या' : 'solved'} · ${c.pending} ${t.open} · ${c.rate}%`,
+  }))
+
+  const rateItems = [...a.ranked]
+    .filter((c) => c.total > 0)
+    .sort((x, y) => y.rate - x.rate)
+    .map((c) => ({
+      key: c.id,
+      label: titleOf(c),
+      value: c.rate,
+      suffix: '%',
+      color: c.rate >= 70 ? CHART_COLORS.solved : c.rate >= 50 ? '#eab308' : CHART_COLORS.pending,
+      sub: `${c.solved}/${c.total}`,
+    }))
+
+  const downloadCharts = () => {
+    downloadText(`EduSolve-AI-Analytics-Report-${lang}.md`, analyticsMarkdown(a, lang))
   }
 
-  const printReport = () => window.print()
-
   return (
-    <div className="report">
-      {/* ---------- Hero ---------- */}
-      <section className="report-hero">
-        <span className="badge"><Icon name="bookmark" size={14} /> {lang === 'mr' ? 'प्रकल्प अहवाल' : 'Project Report'}</span>
-        <h1>{REPORT_META.title}</h1>
-        <p className="report-sub">{L(REPORT_META.subtitle)}</p>
-        <p className="muted">{L(REPORT_META.tagline)}</p>
+    <div className="report an-report">
+      {/* ---------------- Hero ---------------- */}
+      <section className="report-hero an-hero">
+        <span className="badge"><Icon name="chart" size={14} /> {t.badge}</span>
+        <h1>{t.title}</h1>
+        <p className="report-sub">{t.subtitle}</p>
+        <p className="muted">{t.tagline}</p>
 
         <div className="report-actions">
-          <button className="btn primary" onClick={printReport}>
-            <Icon name="listcheck" size={16} /> {lang === 'mr' ? 'प्रिंट / PDF' : 'Print / Save as PDF'}
+          <button className="btn primary" onClick={() => window.print()}>
+            <Icon name="listcheck" size={16} /> {t.print}
           </button>
-          <button className="btn" onClick={() => downloadMarkdown(lang)}>
-            <Icon name="download" size={16} /> {lang === 'mr' ? 'Markdown डाउनलोड' : 'Download Markdown'}
+          <button className="btn" onClick={downloadCharts}>
+            <Icon name="download" size={16} /> {t.downloadCharts}
+          </button>
+          <button className="btn" onClick={() => downloadReportMarkdown(lang)}>
+            <Icon name="bookmark" size={16} /> {t.downloadDoc}
           </button>
           <a className="btn secondary" href={REPORT_META.repo} target="_blank" rel="noreferrer">
-            <Icon name="cpu" size={16} /> {lang === 'mr' ? 'रिपॉझिटरी' : 'Repository'}
+            <Icon name="cpu" size={16} /> {t.repo}
           </a>
         </div>
 
         <div className="report-meta-grid">
           <div><span>{lang === 'mr' ? 'आवृत्ती' : 'Version'}</span><b>{REPORT_META.version}</b></div>
-          <div><span>{lang === 'mr' ? 'प्रकार' : 'Type'}</span><b>{lang === 'mr' ? REPORT_META.typeMr : REPORT_META.type}</b></div>
           <div><span>{lang === 'mr' ? 'शैक्षणिक वर्ष' : 'Academic year'}</span><b>{REPORT_META.academicYear}</b></div>
           <div><span>{lang === 'mr' ? 'विभाग' : 'Department'}</span><b>{REPORT_META.institution}</b></div>
+          <div><span>{lang === 'mr' ? 'अद्ययावत' : 'Updated'}</span><b>{new Date(a.generatedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</b></div>
         </div>
 
-        <div className="report-stats">
-          <div><b>{stats.categories}</b><span>{lang === 'mr' ? 'समस्या प्रकार' : 'Problem categories'}</span></div>
-          <div><b>{stats.perLang}</b><span>{lang === 'mr' ? 'प्रति भाषा मजकूर' : 'Content strings / language'}</span></div>
-          <div><b>{stats.followups}</b><span>{lang === 'mr' ? 'पाठपुरावे प्रश्न' : 'Follow-up questions'}</span></div>
-          <div><b>{stats.keywords}</b><span>{lang === 'mr' ? 'कीवर्ड' : 'Detection keywords'}</span></div>
-          <div><b>2</b><span>{lang === 'mr' ? 'UI भाषा' : 'UI languages'}</span></div>
-          <div><b>3</b><span>{lang === 'mr' ? 'रनटाइम निर्भरता' : 'Runtime dependencies'}</span></div>
+        {/* Controls */}
+        <div className="an-controls">
+          <div className="an-control">
+            <span className="an-control-label">{t.source}</span>
+            <div className="an-seg">
+              {SCOPES.map((s) => (
+                <button key={s.id} className={scope === s.id ? 'on' : ''} onClick={() => setScope(s.id)}>
+                  {lang === 'mr' ? s.mr : s.en}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="an-control">
+            <span className="an-control-label">{t.window}</span>
+            <div className="an-seg">
+              {RANGE_OPTIONS.map((n) => (
+                <button key={n} className={days === n ? 'on' : ''} onClick={() => setDays(n)}>
+                  {t.days(n)}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
+
+        <p className="an-scope-note">
+          <Icon name="info" size={13} /> {scope === 'device' ? t.deviceNote : t.datasetNote}
+        </p>
       </section>
 
-      {/* ---------- Body ---------- */}
-      <div className="report-layout">
-        {/* Table of contents */}
-        <aside className="report-toc">
-          <span className="side-eyebrow">{lang === 'mr' ? 'अनुक्रमणिका' : 'Contents'}</span>
-          <nav>
-            {REPORT_SECTIONS.map((s) => (
-              <button
-                key={s.id}
-                className={'toc-link' + (active === s.id ? ' active' : '')}
-                onClick={() => go(s.id)}
-              >
-                <span className="toc-no">{s.no}</span>
-                <span className="toc-label">{L({ en: s.en, mr: s.mr })}</span>
-              </button>
-            ))}
-          </nav>
-          <div className="toc-foot">
-            <button className="btn small" onClick={() => downloadMarkdown(lang)}>
-              <Icon name="download" size={14} /> {lang === 'mr' ? '.md' : 'Export'}
-            </button>
-            <button className="btn small" onClick={printReport}>
-              <Icon name="listcheck" size={14} /> {lang === 'mr' ? 'प्रिंट' : 'Print'}
-            </button>
-          </div>
-        </aside>
+      {/* ---------------- Headline sentence ---------------- */}
+      <section className="an-headline">
+        <Icon name="sparkles" size={18} />
+        <p>
+          {lang === 'mr'
+            ? `मागील ${days} दिवसांत एकूण ${totals.reported} सम्या नोंदवल्या गेल्या. यांपैकी ${totals.solved} सोडवल्या गेल्या (${totals.rate}%) आणि ${totals.pending} प्रलंबित आहेत.`
+            : `In the last ${days} days ${totals.reported} problems were reported. ${totals.solved} of them were solved (${totals.rate}%) and ${totals.pending} are still pending.`}
+        </p>
+      </section>
 
-        {/* Sections */}
-        <main className="report-body">
-          {REPORT_SECTIONS.map((sec) => (
-            <section key={sec.id} id={`rep-${sec.id}`} className="rep-sec">
-              <h2 className="rep-h2">
-                <span className="rep-no">{sec.no}</span>
-                <Icon name={sec.icon} size={22} />
-                {L({ en: sec.en, mr: sec.mr })}
-              </h2>
-
-              {sec.blocks.map((b, i) => {
-                if (b.t === 'p') {
-                  return <p key={i} className="rep-p">{L(b)}</p>
-                }
-                if (b.t === 'h3') {
-                  return <h3 key={i} className="rep-h3">{L(b)}</h3>
-                }
-                if (b.t === 'ul') {
-                  const items = b[lang] || b.en
-                  return <ul key={i} className="rep-ul">{items.map((x, j) => <li key={j}>{x}</li>)}</ul>
-                }
-                if (b.t === 'ol') {
-                  const items = b[lang] || b.en
-                  return <ol key={i} className="rep-ol">{items.map((x, j) => <li key={j}>{x}</li>)}</ol>
-                }
-                if (b.t === 'note') {
-                  return (
-                    <div key={i} className="rep-note">
-                      <Icon name="info" size={16} />
-                      <span>{L(b)}</span>
-                    </div>
-                  )
-                }
-                if (b.t === 'code') {
-                  return <pre key={i} className="rep-code"><code>{b.text}</code></pre>
-                }
-                if (b.t === 'table') {
-                  return (
-                    <div key={i} className="rep-table-wrap">
-                      <table className="rep-table">
-                        <thead>
-                          <tr>{b.head.map((h, j) => <th key={j}><Cell value={h} lang={lang} /></th>)}</tr>
-                        </thead>
-                        <tbody>
-                          {b.rows.map((row, j) => (
-                            <tr key={j}>{row.map((c, k) => <td key={k}><Cell value={c} lang={lang} /></td>)}</tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )
-                }
-                if (b.t === 'qa') {
-                  return (
-                    <div key={i} className="rep-qa">
-                      {b.items.map((item, j) => (
-                        <details key={j} className="rep-q" open={j === 0}>
-                          <summary>
-                            <span className="q-mark">Q{j + 1}</span>
-                            <span className="q-text">{L(item.q)}</span>
-                          </summary>
-                          <div className="q-answer">
-                            <span className="a-mark">A</span>
-                            <p>{L(item.a)}</p>
-                          </div>
-                        </details>
-                      ))}
-                    </div>
-                  )
-                }
-                if (b.t === 'categories') {
-                  return (
-                    <div key={i} className="rep-table-wrap">
-                      <table className="rep-table">
-                        <thead>
-                          <tr>
-                            <th>#</th>
-                            <th>id</th>
-                            <th>{lang === 'mr' ? 'चिन्ह' : 'Icon'}</th>
-                            <th>{lang === 'mr' ? 'शीर्षक' : 'Title'}</th>
-                            <th>{lang === 'mr' ? 'कीवर्ड' : 'Keywords'}</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {CATEGORIES.map((c, j) => (
-                            <tr key={c.id}>
-                              <td>{j + 1}</td>
-                              <td><code>{c.id}</code></td>
-                              <td><span className="cat-mini"><Icon name={c.icon} size={15} /></span></td>
-                              <td><b>{pick(c.title, lang)}</b><br /><span className="muted small">{pick(c.desc, lang)}</span></td>
-                              <td className="kw-cell">{(c.keywords || []).slice(0, 6).join(', ')}{(c.keywords || []).length > 6 ? ` +${c.keywords.length - 6}` : ''}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )
-                }
-                if (b.t === 'storage') {
-                  return (
-                    <div key={i} className="rep-table-wrap">
-                      <table className="rep-table">
-                        <thead>
-                          <tr>
-                            <th>{lang === 'mr' ? 'की' : 'Key'}</th>
-                            <th>{lang === 'mr' ? 'मॉड्यूल' : 'Module'}</th>
-                            <th>{lang === 'mr' ? 'रूप' : 'Shape'}</th>
-                            <th>{lang === 'mr' ? 'उपयोग' : 'Purpose'}</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {STORAGE_KEYS.map((r) => (
-                            <tr key={r[0]}>
-                              <td><code>{r[0]}</code></td>
-                              <td>{r[1]}</td>
-                              <td><code>{r[2]}</code></td>
-                              <td>{r[3]}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )
-                }
-                if (b.t === 'design') {
-                  return (
-                    <div key={i} className="rep-table-wrap">
-                      <table className="rep-table">
-                        <thead>
-                          <tr>
-                            <th>Token</th>
-                            <th>{lang === 'mr' ? 'विद्यार्थी' : 'Student'}</th>
-                            <th>{lang === 'mr' ? 'प्रशासन' : 'Admin'}</th>
-                            <th>{lang === 'mr' ? 'उपयोग' : 'Purpose'}</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {DESIGN_TOKENS.map((r) => (
-                            <tr key={r[0]}>
-                              <td><code>{r[0]}</code></td>
-                              <td><code>{r[1]}</code></td>
-                              <td><code>{r[2]}</code></td>
-                              <td>{r[3]}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  )
-                }
-                return null
-              })}
-            </section>
-          ))}
-
-          <section className="rep-end">
-            <Icon name="check" size={18} />
-            <span>
-              {lang === 'mr'
-                ? 'प्रकल्पाचा संपूर्ण अहवाल — प्रिंट करून PDF म्हणून जतन करा किंवा Markdown डाउनलोड करा.'
-                : 'End of the project report — print to save as PDF, or download the Markdown copy.'}
-            </span>
-          </section>
-        </main>
+      {/* ---------------- KPI cards ---------------- */}
+      <div className="an-kpi-grid">
+        <Kpi icon="chat" label={t.reported} value={totals.reported} sub={t.days(days)} />
+        <Kpi icon="checkcircle" label={t.solved} value={totals.solved} color={CHART_COLORS.solved}
+          spark={a.daily.map((d) => d.solved)} sparkColor={CHART_COLORS.solved}
+          sub={`${totals.rate}% ${lang === 'mr' ? 'दर' : 'of all reports'}`} />
+        <Kpi icon="alert" label={t.pending} value={totals.pending} color={CHART_COLORS.pending}
+          spark={a.daily.map((d) => d.pending)} sparkColor={CHART_COLORS.pending}
+          sub={`${totals.reported ? Math.round((totals.pending / totals.reported) * 100) : 0}% ${lang === 'mr' ? 'प्रलंबित' : 'still open'}`} />
+        <Kpi icon="target" label={t.rate} value={totals.rate + '%'} color={CHART_COLORS.accent}
+          sub={`${totals.avgSolved} ${lang === 'mr' ? 'दररोज' : 'per day'}`} />
+        <Kpi icon="history" label={t.perDay} value={totals.avgSolved}
+          sub={`${totals.streak} ${lang === 'mr' ? 'दिवस सलगीत' : 'day streak'}`} />
+        <Kpi icon="grid" label={t.topProblem} value={top && top.total > 0 ? top.total : '—'}
+          sub={top && top.total > 0 ? titleOf(top) : '—'} />
       </div>
+
+      {empty ? (
+        <div className="an-empty">
+          <Icon name="info" size={18} />
+          <span>{t.noData}</span>
+        </div>
+      ) : (
+        <>
+          {/* ---------------- Chart grid ---------------- */}
+          <div className="an-grid">
+            {/* Solved vs pending */}
+            <Panel icon="checkcircle" title={t.solvedVsPending} sub={t.solvedVsPendingSub}>
+              <div className="an-donut-wrap">
+                <DonutChart
+                  size={190}
+                  segments={[
+                    { key: 'solved', label: t.legendSolved, value: totals.solved, color: CHART_COLORS.solved },
+                    { key: 'pending', label: t.legendPending, value: totals.pending, color: CHART_COLORS.pending },
+                  ]}
+                  center={(
+                    <>
+                      <text x="95" y="92" className="ch-donut-num" textAnchor="middle">{totals.rate}%</text>
+                      <text x="95" y="112" className="ch-donut-cap" textAnchor="middle">{lang === 'mr' ? 'सोडवणी दर' : 'solved'}</text>
+                    </>
+                  )}
+                />
+                <div className="an-donut-side">
+                  <div className="an-stat">
+                    <span className="an-dot" style={{ background: CHART_COLORS.solved }} />
+                    <div>
+                      <b>{totals.solved}</b>
+                      <span>{t.legendSolved}</span>
+                    </div>
+                  </div>
+                  <div className="an-stat">
+                    <span className="an-dot" style={{ background: CHART_COLORS.pending }} />
+                    <div>
+                      <b>{totals.pending}</b>
+                      <span>{t.legendPending}</span>
+                    </div>
+                  </div>
+                  <div className="an-stat">
+                    <span className="an-dot" style={{ background: CHART_COLORS.neutral }} />
+                    <div>
+                      <b>{totals.reported}</b>
+                      <span>{t.total}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Panel>
+
+            {/* Solve rate gauge */}
+            <Panel icon="target" title={t.rate} sub={t.solvedVsPendingSub}>
+              <div className="an-gauge-wrap">
+                <Gauge value={totals.rate} size={210} color={CHART_COLORS.solved}
+                  label={lang === 'mr' ? 'सोडवणी दर' : 'solve rate'} />
+                <div className="an-mini-stats">
+                  <div><span>{t.bestDay}</span><b>{totals.bestDay ? `${totals.bestDay.label} (${totals.bestDay.solved})` : '—'}</b></div>
+                  <div><span>{t.busiestDay}</span><b>{totals.busiestDay ? `${totals.busiestDay.label} (${totals.busiestDay.total})` : '—'}</b></div>
+                  <div><span>{t.streak}</span><b>{totals.streak} {lang === 'mr' ? 'दिवस' : 'days'}</b></div>
+                  <div><span>{t.perDay}</span><b>{totals.avgSolved}</b></div>
+                </div>
+              </div>
+            </Panel>
+
+            {/* Daily chart — full width */}
+            <Panel icon="history" title={t.solvedOneDay} sub={t.solvedOneDaySub} className="span2">
+              <ColumnChart data={dailyChart} height={250} />
+              <Legend items={[
+                { key: 's', label: t.legendSolved, color: CHART_COLORS.solved, value: totals.solved },
+                { key: 'p', label: t.legendPending, color: CHART_COLORS.pending, value: totals.pending },
+              ]} />
+            </Panel>
+
+            {/* Frequent problems */}
+            <Panel icon="grid" title={t.frequent} sub={t.frequentSub}>
+              <BarList items={frequentItems} />
+              <div className="an-legend-inline">
+                <span><i style={{ background: CHART_COLORS.solved }} /> {t.legendSolved}</span>
+                <span><i style={{ background: CHART_COLORS.pending }} /> {t.legendPending}</span>
+              </div>
+            </Panel>
+
+            {/* Solve rate by category */}
+            <Panel icon="target" title={t.rateByCat} sub={t.rateByCatSub}>
+              <BarList items={rateItems} suffix="%" />
+            </Panel>
+
+            {/* Cumulative */}
+            <Panel icon="sparkles" title={t.cumulative} sub={t.cumulativeSub}>
+              <AreaChart data={a.cumulative} height={240} color={CHART_COLORS.accent} />
+            </Panel>
+
+            {/* Weekly */}
+            <Panel icon="listcheck" title={t.weekly} sub={t.weeklySub}>
+              <ColumnChart data={weeklyChart} height={240} />
+              <Legend items={[
+                { key: 's', label: t.legendSolved, color: CHART_COLORS.solved, value: totals.solved },
+                { key: 'p', label: t.legendPending, color: CHART_COLORS.pending, value: totals.pending },
+              ]} />
+            </Panel>
+
+            {/* Sources */}
+            <Panel icon="chat" title={t.sources} sub={t.sourcesSub} className="span2">
+              <div className="an-source-grid">
+                {a.sources.map((s) => (
+                  <div className="an-source" key={s.id}>
+                    <div className="an-source-head">
+                      <b>{lang === 'mr' ? s.mr : s.en}</b>
+                      <span>{s.count} {lang === 'mr' ? 'नोंदी' : 'reports'}</span>
+                    </div>
+                    <SplitBar segments={[
+                      { key: 's', label: t.legendSolved, value: s.solved, color: CHART_COLORS.solved },
+                      { key: 'p', label: t.legendPending, value: s.pending, color: CHART_COLORS.pending },
+                    ]} />
+                    <div className="an-source-foot">
+                      <span>{t.legendSolved} <b>{s.solved}</b></span>
+                      <span>{t.legendPending} <b>{s.pending}</b></span>
+                      <span>{t.rateCol} <b>{s.rate}%</b></span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Panel>
+
+            {/* Pending list */}
+            <Panel icon="alert" title={t.pendingList} sub={t.pendingListSub} className="span2">
+              <div className="rep-table-wrap">
+                <table className="rep-table">
+                  <thead>
+                    <tr>
+                      <th>{t.problem}</th>
+                      <th>{t.total}</th>
+                      <th>{t.solved}</th>
+                      <th>{t.pending}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {a.pendingRanked.map((c) => (
+                      <tr key={c.id}>
+                        <td>
+                          <span className="an-td-cat"><Icon name={c.icon} size={15} /> {titleOf(c)}</span>
+                        </td>
+                        <td>{c.total}</td>
+                        <td style={{ color: CHART_COLORS.solved, fontWeight: 700 }}>{c.solved}</td>
+                        <td style={{ color: CHART_COLORS.pending, fontWeight: 700 }}>{c.pending}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </Panel>
+
+            {/* Day-wise table */}
+            <Panel icon="calendar" title={t.dayWise} sub={t.dayWiseSub} className="span2">
+              <div className="rep-table-wrap">
+                <table className="rep-table">
+                  <thead>
+                    <tr>
+                      <th>{t.day}</th>
+                      <th>{t.solved}</th>
+                      <th>{t.pending}</th>
+                      <th>{t.total}</th>
+                      <th>{t.rateCol}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {a.daily.slice().reverse().map((d) => (
+                      <tr key={d.key}>
+                        <td><b>{d.label}</b> <span className="muted small">({d.weekday})</span></td>
+                        <td style={{ color: CHART_COLORS.solved, fontWeight: 700 }}>{d.solved}</td>
+                        <td style={{ color: CHART_COLORS.pending, fontWeight: 700 }}>{d.pending}</td>
+                        <td>{d.total}</td>
+                        <td>{d.rate}%</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </Panel>
+          </div>
+
+          {/* ---------------- Insight ---------------- */}
+          <section className="an-insight">
+            <span className="an-insight-ico"><Icon name="sparkles" size={18} /></span>
+            <div>
+              <h3>{t.insight}</h3>
+              <ul>
+                {top && top.total > 0 && (
+                  <li>{t.topInsight(titleOf(top), top.total, top.share, top.rate)}</li>
+                )}
+                {worstPending && worstPending.pending > 0 && (
+                  <li>{t.pendingInsight(titleOf(worstPending), worstPending.pending)}</li>
+                )}
+                <li>
+                  {lang === 'mr'
+                    ? `सरासरी ${totals.avgReported} समस्या दररोज नोंदवल्या जातात आणि ${totals.avgSolved} सोडवल्या जातात.`
+                    : `On average ${totals.avgReported} problems are reported per day and ${totals.avgSolved} of them get solved.`}
+                </li>
+              </ul>
+            </div>
+          </section>
+
+          {/* ---------------- Category reference table ---------------- */}
+          <section className="an-panel">
+            <div className="an-panel-head">
+              <div>
+                <h3 className="with-icon"><Icon name="listcheck" size={17} /> {t.problem} — {t.total}</h3>
+                <p className="muted small">{lang === 'mr' ? 'प्रत्येक प्रकाराचा सविस्तर आकडा' : 'Full number for every problem type'}</p>
+              </div>
+            </div>
+            <div className="rep-table-wrap">
+              <table className="rep-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>{t.problem}</th>
+                    <th>{t.total}</th>
+                    <th>{t.solved}</th>
+                    <th>{t.pending}</th>
+                    <th>{t.rateCol}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {a.ranked.map((c, i) => (
+                    <tr key={c.id}>
+                      <td>{i + 1}</td>
+                      <td>
+                        <span className="an-td-cat"><Icon name={c.icon} size={15} /> {titleOf(c)}</span>
+                      </td>
+                      <td>{c.total}</td>
+                      <td style={{ color: CHART_COLORS.solved, fontWeight: 700 }}>{c.solved}</td>
+                      <td style={{ color: CHART_COLORS.pending, fontWeight: 700 }}>{c.pending}</td>
+                      <td>
+                        <span className="an-rate-cell">
+                          <span className="an-rate-track"><span style={{ width: c.rate + '%' }} /></span>
+                          <b>{c.rate}%</b>
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </>
+      )}
+
+      <section className="rep-end">
+        <Icon name="check" size={18} />
+        <span>
+          {lang === 'mr'
+            ? 'संपूर्ण आकडेवारी अहवाल — प्रिंट करून PDF म्हणून जतन करा किंवा Markdown डाउनलोड करा.'
+            : 'End of the graphical report — print it to save as PDF, or download the Markdown copy.'}
+          {' '}{t.printHint}
+        </span>
+      </section>
     </div>
   )
 }
