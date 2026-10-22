@@ -127,6 +127,7 @@ Installed, it opens like a normal app and keeps working even with a weak connect
 
 The **Project Report** tab (in the navbar, the sidebar and the bottom tab bar) holds the graphical analytics report.
 
+- **Slim toolbar at the top** — Print / PDF, the two downloads and the two filter switches. There is no text header; the numbers start immediately below.
 - **KPI cards** — problems reported, problems solved, problems pending, solve rate, solved per day and the most frequent problem, each with a sparkline where a trend exists.
 - **Charts** — solved vs pending (donut), solve rate (gauge), problems solved in one day (stacked columns), most frequently generated problems (ranked bars), solve rate per problem type, cumulative problems solved (area), weekly comparison and where the problems are reported from.
 - **Tables** — the pending "help desk" list and a day-wise result table with solved, pending, total and rate for every day.

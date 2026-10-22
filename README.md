@@ -146,6 +146,8 @@ The i18n system is a plain object — no library, no build step. See [`docs/LANG
 
 A **graphical** analytics report built into the app. Every number on the page is a chart, a KPI card or a table — no walls of text.
 
+The page opens with a **slim toolbar** (Print, the two downloads and the two switches) — there is no long text header, so the report starts straight with the numbers.
+
 | Chart / card | What it shows |
 |---|---|
 | **KPI cards (6)** | Problems reported · Problems solved · Problems pending · Solve rate % · Solved per day · Most frequent problem — each with a sparkline where a trend exists |

@@ -233,7 +233,7 @@ Local sub-components inside the same file: `Checklist`, `FileChecker`, `PhotoRes
 #### `pages/Report.jsx`
 The **graphical** analytics report. It renders no prose sections — every fact is a KPI card, a chart or a table.
 - **Data** comes from `src/data/analytics.js` → `buildAnalytics({ scope, days })`, which merges a deterministic seeded 30-day dataset with the real Solved / Not-Solved feedback stored in this browser and returns totals, daily buckets, per-category counts, per-source counts, weekly buckets and a cumulative series.
-- **Controls** — a data-source switch (`all` / `project` / `device`) and a time window (7 / 14 / 30 days). Both re-compute through `useMemo`.
+- **Controls** — a data-source switch (`all` / `project` / `device`) and a time window (7 / 14 / 30 days). Both re-compute through `useMemo`. They live in a slim toolbar at the top of the page; there is no text header — the report starts with the numbers, and the page title is a screen-reader-only `h1`.
 - **Charts** are hand-written SVG in `src/components/Charts.jsx`: `DonutChart`, `ColumnChart` (stacked), `AreaChart`, `BarList`, `SplitBar`, `Sparkline`, `Gauge`, `Legend`. No chart library, no extra dependency. Each chart measures its container with a `ResizeObserver` (`useWidth`) and redraws.
 - **Exports** — `analyticsMarkdown(a, lang)` writes the current numbers as Markdown; `downloadReportMarkdown(lang)` (in `src/data/reportExport.js`) still exports the long written document from `REPORT_SECTIONS`.
 - **`window.print()`** plus the `@media print` block in `src/index.css` produces a clean A4 document: chrome hidden, charts and tables kept whole.

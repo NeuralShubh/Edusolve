@@ -12,10 +12,8 @@ import { Icon } from '../components/icons'
 
 const TXT = {
   en: {
-    badge: 'Problem analytics',
     title: 'EduSolve AI',
     subtitle: 'Problem Resolution Report',
-    tagline: 'A fully graphical report: how many problems were solved, how many are still pending, which problems are generated most often, and how many are solved in one day.',
     print: 'Print / PDF',
     downloadCharts: 'Download report (.md)',
     downloadDoc: 'Full document (.md)',
@@ -70,10 +68,8 @@ const TXT = {
     backToTop: 'Top of report',
   },
   mr: {
-    badge: 'समस्या विश्लेषण',
     title: 'EduSolve AI',
     subtitle: 'समस्या निराकरण अहवाल',
-    tagline: 'पूर्णपणे आकडेवारी अहवाल — किती समस्या सोडवल्या, किती प्रलंबित आहेत, कोणत्या समस्या सर्वाधिक वार येतात आणि दररोज किती सोडवल्या जातात.',
     print: 'प्रिंट / PDF',
     downloadCharts: 'अहवाल डाउनलोड (.md)',
     downloadDoc: 'संपूर्ण दस्तऐवज (.md)',
@@ -223,37 +219,26 @@ export default function Report() {
 
   return (
     <div className="report an-report">
-      {/* ---------------- Hero ---------------- */}
-      <section className="report-hero an-hero">
-        <span className="badge"><Icon name="chart" size={14} /> {t.badge}</span>
-        <h1>{t.title}</h1>
-        <p className="report-sub">{t.subtitle}</p>
-        <p className="muted">{t.tagline}</p>
+      {/* ---------------- Slim toolbar ---------------- */}
+      <h1 className="sr-only">{t.title} — {t.subtitle}</h1>
 
-        <div className="report-actions">
-          <button className="btn primary" onClick={() => window.print()}>
-            <Icon name="listcheck" size={16} /> {t.print}
+      <section className="an-toolbar">
+        <div className="an-toolbar-actions">
+          <button className="btn primary small" onClick={() => window.print()}>
+            <Icon name="listcheck" size={15} /> {t.print}
           </button>
-          <button className="btn" onClick={downloadCharts}>
-            <Icon name="download" size={16} /> {t.downloadCharts}
+          <button className="btn small" onClick={downloadCharts}>
+            <Icon name="download" size={15} /> {t.downloadCharts}
           </button>
-          <button className="btn" onClick={() => downloadReportMarkdown(lang)}>
-            <Icon name="bookmark" size={16} /> {t.downloadDoc}
+          <button className="btn small" onClick={() => downloadReportMarkdown(lang)}>
+            <Icon name="bookmark" size={15} /> {t.downloadDoc}
           </button>
-          <a className="btn secondary" href={REPORT_META.repo} target="_blank" rel="noreferrer">
-            <Icon name="cpu" size={16} /> {t.repo}
+          <a className="btn small secondary" href={REPORT_META.repo} target="_blank" rel="noreferrer">
+            <Icon name="cpu" size={15} /> {t.repo}
           </a>
         </div>
 
-        <div className="report-meta-grid">
-          <div><span>{lang === 'mr' ? 'आवृत्ती' : 'Version'}</span><b>{REPORT_META.version}</b></div>
-          <div><span>{lang === 'mr' ? 'शैक्षणिक वर्ष' : 'Academic year'}</span><b>{REPORT_META.academicYear}</b></div>
-          <div><span>{lang === 'mr' ? 'विभाग' : 'Department'}</span><b>{REPORT_META.institution}</b></div>
-          <div><span>{lang === 'mr' ? 'अद्ययावत' : 'Updated'}</span><b>{new Date(a.generatedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</b></div>
-        </div>
-
-        {/* Controls */}
-        <div className="an-controls">
+        <div className="an-toolbar-filters">
           <div className="an-control">
             <span className="an-control-label">{t.source}</span>
             <div className="an-seg">
