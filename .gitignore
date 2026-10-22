@@ -1,0 +1,11 @@
+# Build output is committed to this branch — ignore the source tree instead.
+node_modules
+src
+admin-app
+docs
+dist
+dist-admin
+.vite
+*.log
+.DS_Store
+Thumbs.db
