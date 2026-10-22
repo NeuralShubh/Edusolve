@@ -5,6 +5,7 @@ import Home from './pages/Home'
 import Dashboard from './pages/Dashboard'
 import Solver from './pages/Solver'
 import Tools from './pages/Tools'
+import Report from './pages/Report'
 
 export default function App() {
   return (
@@ -16,6 +17,7 @@ export default function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/solver" element={<Solver />} />
             <Route path="/tools" element={<Tools />} />
+            <Route path="/report" element={<Report />} />
             <Route path="*" element={<Home />} />
           </Routes>
         </Layout>

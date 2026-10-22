@@ -86,6 +86,22 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="report-promo">
+        <span className="promo-ico"><Icon name="bookmark" size={26} /></span>
+        <div>
+          <span className="eyebrow"><Icon name="listcheck" size={13} /> {lang === 'mr' ? 'दस्तऐवज' : 'Documentation'}</span>
+          <h2>{lang === 'mr' ? 'संपूर्ण प्रकल्प अहवाल' : 'The complete project report'}</h2>
+          <p className="sub">
+            {lang === 'mr'
+              ? 'सारांश, उद्देश, तंत्रज्ञान स्टॅक, आर्किटेक्चर, अल्गोरिदम, चाचणी, मर्यादा, भविष्यातील वाट आणि परीक्षेतील १० प्रश्न — एका पानावर. प्रिंट करून PDF जतन करा.'
+              : 'Abstract, objectives, tech stack, architecture, the algorithm, testing, limitations, future scope and 10 viva questions — all on one page. Print it to save as PDF.'}
+          </p>
+        </div>
+        <button className="btn primary" onClick={() => nav('/report')}>
+          <Icon name="bookmark" size={16} /> {t.nav_report}
+        </button>
+      </section>
+
       <section className="cta-banner">
         <div>
           <h2>{lang === 'mr' ? 'तुमची फॉर्म समस्या आजच सोडवा' : 'Fix your form problem today'}</h2>

@@ -26,6 +26,7 @@ export function Navbar() {
           <NavLink to="/dashboard" className={link}>{t.nav_dashboard}</NavLink>
           <NavLink to="/solver" className={link}>{t.nav_solver}</NavLink>
           <NavLink to="/tools" className={link}>{t.nav_tools}</NavLink>
+          <NavLink to="/report" className={link}>{t.nav_report}</NavLink>
         </nav>
         <div className="nav-actions">
           <button className="lang-btn" onClick={toggle} title="Switch language">
@@ -53,6 +54,7 @@ function MobileMenu({ t, toggle, lang }) {
           <button onClick={() => go('/dashboard')}>{t.nav_dashboard}</button>
           <button onClick={() => go('/solver')}>{t.nav_solver}</button>
           <button onClick={() => go('/tools')}>{t.nav_tools}</button>
+          <button onClick={() => go('/report')}>{t.nav_report}</button>
           <button onClick={() => { toggle(); setOpen(false) }}>{lang === 'en' ? 'मराठी' : 'English'}</button>
         </div>
       )}
@@ -69,6 +71,7 @@ export function Footer() {
     { to: '/dashboard', label: t.nav_dashboard, icon: 'grid' },
     { to: '/solver', label: t.nav_solver, icon: 'chat' },
     { to: '/tools', label: t.nav_tools, icon: 'wrench' },
+    { to: '/report', label: t.nav_report, icon: 'bookmark' },
   ]
   return (
     <footer className="footer">
@@ -129,6 +132,7 @@ export function Sidebar() {
     { to: '/dashboard', label: t.nav_dashboard, icon: 'grid' },
     { to: '/solver', label: t.nav_solver, icon: 'chat' },
     { to: '/tools', label: t.nav_tools, icon: 'wrench' },
+    { to: '/report', label: t.nav_report, icon: 'bookmark' },
   ]
   return (
     <aside className="sidebar" aria-label="Side menu">
@@ -163,6 +167,7 @@ export function MobileTabBar() {
     { to: '/dashboard', label: t.nav_dashboard, icon: 'grid' },
     { to: '/solver', label: t.nav_solver, icon: 'chat', fab: true },
     { to: '/tools', label: t.nav_tools, icon: 'wrench' },
+    { to: '/report', label: t.nav_report_short, icon: 'bookmark' },
   ]
   return (
     <nav className="tabbar" aria-label="Primary">
