@@ -133,7 +133,7 @@ The **Project Report** tab (in the navbar, the sidebar and the bottom tab bar) h
 - **Tables** — the pending "help desk" list and a day-wise result table with solved, pending, total and rate for every day.
 - **Data source and time window** — switch between *All data*, *Project dataset* and *This device*, and between the last 7, 14 or 30 days. Everything re-computes instantly.
 - **Print / Save as PDF** — the print button opens your browser's print dialog with a clean A4 layout: the navigation is hidden and the charts are laid out two per row. Choose "Save as PDF" as the destination.
-- **Download report (.md)** — saves the current numbers as a `.md` file in the language you are viewing. **Full document (.md)** downloads the full written project document.
+- **Download Excel (.xlsx)** — saves the current report as a real Excel workbook with five sheets: **Summary**, **Daily**, **By Problem Type**, **By Source** and **Weekly**. The numbers stay numeric (so you can sum them in Excel), the header row is frozen and every label follows the language you are viewing. **Full document (.md)** downloads the full written project document.
 - Everything switches between English and Marathi with the global toggle, and the numbers are computed live in your browser — nothing is uploaded anywhere.
 
 ---

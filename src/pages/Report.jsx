@@ -1,21 +1,22 @@
 import { useMemo, useState } from 'react'
 import { useLang } from '../context/LanguageContext'
 import { REPORT_META } from '../data/report'
-import {
-  buildAnalytics, analyticsMarkdown, RANGE_OPTIONS, SCOPES, CHART_COLORS,
-} from '../data/analytics'
-import { downloadText, downloadReportMarkdown } from '../data/reportExport'
+import { buildAnalytics, RANGE_OPTIONS, SCOPES, CHART_COLORS } from '../data/analytics'
+import { buildReportSheets, reportFileBaseName } from '../data/reportSheets'
+import { downloadReportMarkdown } from '../data/reportExport'
+import { downloadXlsx } from '../lib/xlsx'
 import {
   AreaChart, BarList, ColumnChart, DonutChart, Gauge, Legend, Sparkline, SplitBar,
 } from '../components/Charts'
 import { Icon } from '../components/icons'
+import { useToast } from '../components/PremiumUI'
 
 const TXT = {
   en: {
     title: 'EduSolve AI',
     subtitle: 'Problem Resolution Report',
     print: 'Print / PDF',
-    downloadCharts: 'Download report (.md)',
+    downloadExcel: 'Download Excel (.xlsx)',
     downloadDoc: 'Full document (.md)',
     repo: 'Repository',
     source: 'Data source',
@@ -72,7 +73,7 @@ const TXT = {
     title: 'EduSolve AI',
     subtitle: 'समस्या निराकरण अहवाल',
     print: 'प्रिंट / PDF',
-    downloadCharts: 'अहवाल डाउनलोड (.md)',
+    downloadExcel: 'एक्सेल डाउनलोड (.xlsx)',
     downloadDoc: 'संपूर्ण दस्तऐवज (.md)',
     repo: 'रिपॉझिटरी',
     source: 'माहितीचा स्रोत',
@@ -161,6 +162,7 @@ export default function Report() {
   const t = TXT[lang] || TXT.en
   const [scope, setScope] = useState('all')
   const [days, setDays] = useState(30)
+  const [toast, showToast] = useToast()
 
   const a = useMemo(() => buildAnalytics({ scope, days }), [scope, days])
   const { totals } = a
@@ -215,8 +217,15 @@ export default function Report() {
       sub: `${c.solved}/${c.total}`,
     }))
 
-  const downloadCharts = () => {
-    downloadText(`EduSolve-AI-Analytics-Report-${lang}.md`, analyticsMarkdown(a, lang))
+  const downloadExcel = () => {
+    const sheets = buildReportSheets(a, lang)
+    downloadXlsx(`${reportFileBaseName(lang)}.xlsx`, sheets, {
+      title: `${t.title} — ${t.subtitle}`,
+      creator: 'EduSolve AI',
+    })
+    showToast(lang === 'mr'
+      ? `एक्सेल फाइल तयार झाली (${sheets.length} शीट).`
+      : `Excel file ready — ${sheets.length} sheets.`)
   }
 
   return (
@@ -251,8 +260,8 @@ export default function Report() {
           <button className="btn primary small" onClick={() => window.print()}>
             <Icon name="listcheck" size={15} /> {t.print}
           </button>
-          <button className="btn small" onClick={downloadCharts}>
-            <Icon name="download" size={15} /> {t.downloadCharts}
+          <button className="btn small" onClick={downloadExcel}>
+            <Icon name="download" size={15} /> {t.downloadExcel}
           </button>
           <button className="btn small" onClick={() => downloadReportMarkdown(lang)}>
             <Icon name="bookmark" size={15} /> {t.downloadDoc}
@@ -546,11 +555,12 @@ export default function Report() {
         <Icon name="check" size={18} />
         <span>
           {lang === 'mr'
-            ? 'संपूर्ण आकडेवारी अहवाल — प्रिंट करून PDF म्हणून जतन करा किंवा Markdown डाउनलोड करा.'
-            : 'End of the graphical report — print it to save as PDF, or download the Markdown copy.'}
+            ? 'संपूर्ण आकडेवारी अहवाल — प्रिंट करून PDF म्हणून जतन करा किंवा एक्सेल शीट डाउनलोड करा.'
+            : 'End of the graphical report — print it to save as PDF, or download the Excel workbook.'}
           {' '}{t.printHint}
         </span>
       </section>
+      {toast}
     </div>
   )
 }

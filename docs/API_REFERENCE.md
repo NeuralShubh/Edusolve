@@ -386,7 +386,6 @@ Computed live from `CATEGORIES` and `SOLUTIONS` — it can never drift from the 
 | `buildProjectDataset(now?, days?)` | `Array<Row>` | Deterministic seeded 30-day sample |
 | `readDeviceData()` | `object` | Reads feedback, visits, recents and checklist from `localStorage` |
 | `buildAnalytics({ scope, days, now, device })` | `object` | The whole report model |
-| `analyticsMarkdown(a, lang)` | `string` | The current numbers as Markdown |
 | `matchCategory(text)` | `string` | Maps a free-text title back to a category id |
 | `dayKey(date)` / `shortDayLabel(key)` / `weekdayLabel(key, lang)` | `string` | Date helpers |
 
@@ -430,7 +429,45 @@ Computed live from `CATEGORIES` and `SOLUTIONS` — it can never drift from the 
 
 ---
 
-## 13. `public/sw.js` — Service Worker
+## 13. `src/data/reportSheets.js` — the Excel sheet definitions
+
+| Export | Type | Notes |
+|---|---|---|
+| `buildReportSheets(a, lang)` | `Sheet[]` | Turns the analytics model into 5 sheet definitions |
+| `reportSheetLabels(lang)` | `object` | Every bilingual label used by the sheets |
+| `reportFileBaseName(lang)` | `string` | `EduSolve-AI-Analytics-Report-en` / `-mr` |
+
+```ts
+type Sheet = {
+  name: string,                       // Excel tab name (<= 31 chars, no : \ / ? * [ ])
+  title?: string,                     // bold title row, merged across the table
+  columns: { header: string, width?: number }[],
+  rows: (string | number | null)[][], // numbers stay numbers so Excel can sum them
+  note?: string,                      // caption under the last row
+}
+```
+
+Sheets produced: **Summary** (13 metric rows), **Daily** (one row per day, plus a `Visits` column when visit data exists), **By Problem Type** (ranked, with solve rate and share), **By Source**, **Weekly**.
+
+---
+
+## 14. `src/lib/xlsx.js` — dependency-free XLSX writer
+
+| Export | Type | Notes |
+|---|---|---|
+| `createXlsx(sheets, options)` | `ArrayBuffer` | Builds the whole workbook in memory |
+| `downloadXlsx(filename, sheets, options)` | `void` | Creates a Blob and triggers the browser download |
+| `safeSheetName(name, fallback)` | `string` | Sanitises and de-duplicates an Excel tab name |
+| `resetSheetNames()` | `void` | Clears the de-dupe registry between builds |
+| `sheetToCsv(sheet)` | `string` | RFC-4180 CSV of one sheet |
+
+`options` accepts `{ creator?, title? }` and is written into `docProps/core.xml` and `docProps/app.xml`.
+
+The writer builds the ZIP container by hand — CRC-32 (IEEE 802.3), stored (uncompressed) entries, UTF-8 file names — and emits the OOXML parts Excel needs: `[Content_Types].xml`, `_rels/.rels`, `xl/workbook.xml`, `xl/_rels/workbook.xml.rels`, `xl/styles.xml` and one `xl/worksheets/sheetN.xml` per sheet. Strings are written as inline strings, so Marathi text survives without a shared-strings table. Worksheets get a frozen header row, sized columns and a merged title row. **No npm dependency is added.**
+
+---
+
+## 15. `public/sw.js` — Service Worker
 
 | Event | Behaviour |
 |---|---|
@@ -442,7 +479,7 @@ Computed live from `CATEGORIES` and `SOLUTIONS` — it can never drift from the 
 
 ---
 
-## 14. `public/manifest.webmanifest`
+## 16. `public/manifest.webmanifest`
 
 | Field | Value |
 |---|---|
@@ -458,7 +495,7 @@ Computed live from `CATEGORIES` and `SOLUTIONS` — it can never drift from the 
 
 ---
 
-## 15. `vercel.json`
+## 17. `vercel.json`
 
 ```json
 { "rewrites": [{ "source": "/(.*)", "destination": "/" }] }
@@ -467,7 +504,7 @@ All routes fall back to `/index.html`. Not strictly required (hash routing), but
 
 ---
 
-## 16. npm scripts API
+## 18. npm scripts API
 
 | Script | Command | Effect |
 |---|---|---|

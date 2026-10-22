@@ -128,7 +128,7 @@ The i18n system is a plain object — no library, no build step. See [`docs/LANG
 | `/dashboard` | **Dashboard** | Searchable category picker, 12 category cards, active solution panel, Recently viewed (max 6), Saved solutions, 5-item task checklist with progress % |
 | `/solver` | **AI Problem Solver** | Chat interface with keyword detection, 2 follow-up questions, structured solution card, 5 one-click example prompts, Solved / Not Solved feedback, save, clear |
 | `/tools` | **Smart Tools** | Searchable tool picker + 6 tools (see below) |
-| `/report` | **Project Report** | A fully graphical analytics report — solved / pending / most-frequent / per-day charts, KPI cards and tables, print-to-PDF, Markdown export |
+| `/report` | **Project Report** | A fully graphical analytics report — solved / pending / most-frequent / per-day charts, KPI cards and tables, print-to-PDF, Excel export |
 | `*` | Home | Any unknown route falls back to Home |
 
 ### 4.2 Smart Tools (the parts that genuinely work)
@@ -167,10 +167,12 @@ The page opens with a **slim toolbar** (Print, the two downloads and the two swi
 | **Data source** | `All data` (project dataset + this browser) · `Project dataset` (the 30-day sample) · `This device` (only what you solved here) |
 | **Time window** | Last 7, 14 or 30 days — every chart, card and table re-computes instantly |
 | **Print / Save as PDF** | A dedicated `@media print` stylesheet strips the navbar, sidebar, footer and tab bar and lays the charts out on A4 |
-| **Download report (.md)** | Downloads the current analytics numbers as a Markdown report |
+| **Download Excel (.xlsx)** | Downloads the current report as a real Excel workbook with 5 sheets — `Summary`, `Daily`, `By Problem Type`, `By Source`, `Weekly`. Numbers stay numeric so they can be summed, columns are sized, the header row is frozen and every label is in the language you are viewing. |
 | **Full document (.md)** | Downloads the long written project document that lives in `docs/` |
 
 The long-form written document is still available as a one-click Markdown export, and the chart code lives in `src/components/Charts.jsx` — hand-written SVG, **no chart library and no new dependency**.
+
+The Excel workbook is produced by `src/lib/xlsx.js` — a **dependency-free XLSX writer**: it builds the ZIP container and the OOXML parts by hand (CRC-32, stored entries, inline strings, frozen header row, column widths, merged title row), so the app still ships with 3 runtime dependencies and works fully offline. `src/data/reportSheets.js` turns the analytics model into the 5 sheet definitions.
 
 The dataset is produced by `src/data/analytics.js`: a deterministic, seeded 30-day sample (the same numbers on every device) merged with the real Solved / Not-Solved feedback stored in this browser, so the report is never empty and never drifts from the code.
 
@@ -288,13 +290,15 @@ Taniya/                          ← repository root (project folder name)
 │   │   ├── categories.js        12 categories + full solution bank + detectCategory()
 │   │   ├── report.js            Project report content, live stats, storage + design tables
 │   │   ├── analytics.js         30-day dataset, device merge, all report aggregates
+│   │   ├── reportSheets.js      Analytics → 5 Excel sheet definitions (bilingual)
 │   │   └── reportExport.js      Markdown export of the written document
 │   ├── engine/
 │   │   └── solverEngine.js      startSession / buildSolution / fallbackSolution
 │   ├── i18n/
 │   │   └── translations.js      STRINGS.en + STRINGS.mr (62 keys each)
 │   ├── lib/
-│   │   └── store.js             localStorage helpers (admin, feedback, visits)
+│   │   ├── store.js             localStorage helpers (admin, feedback, visits)
+│   │   └── xlsx.js              Dependency-free XLSX writer (ZIP + OOXML, no npm dep)
 │   └── pages/
 │       ├── Home.jsx             Hero, popular, how-it-works, features, CTA
 │       ├── Dashboard.jsx        Categories, search, solution, recent, saved, checklist
