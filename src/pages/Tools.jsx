@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useLang } from '../context/LanguageContext'
 import { STRINGS } from '../i18n/translations'
 import { Icon } from '../components/icons'
-import { SearchSelect } from '../components/PremiumUI'
+import { TabSwitcher, Segmented } from '../components/PremiumUI'
 
 const TOOLS = [
   { id: 'docprep', icon: 'folder', en: 'Document preparation checklist', mr: 'कागदपत्र तयारी यादी' },
@@ -69,10 +69,10 @@ function FileChecker({ lang }) {
   const [file, setFile] = useState(null)
   const [preset, setPreset] = useState('pdf200')
   const presets = {
-    pdf200: { label: 'PDF, max 200 KB (scholarship docs)', exts: ['pdf'], maxKB: 200 },
-    img50: { label: 'Photo JPG, max 50 KB', exts: ['jpg', 'jpeg'], maxKB: 50 },
-    sign30: { label: 'Signature JPG, max 30 KB', exts: ['jpg', 'jpeg'], maxKB: 30 },
-    img200: { label: 'Image, max 200 KB (JPG/PNG)', exts: ['jpg', 'jpeg', 'png'], maxKB: 200 },
+    pdf200: { label: 'PDF, max 200 KB (scholarship docs)', short: 'PDF ≤ 200 KB', exts: ['pdf'], maxKB: 200 },
+    img50: { label: 'Photo JPG, max 50 KB', short: 'Photo ≤ 50 KB', exts: ['jpg', 'jpeg'], maxKB: 50 },
+    sign30: { label: 'Signature JPG, max 30 KB', short: 'Signature ≤ 30 KB', exts: ['jpg', 'jpeg'], maxKB: 30 },
+    img200: { label: 'Image, max 200 KB (JPG/PNG)', short: 'Image ≤ 200 KB', exts: ['jpg', 'jpeg', 'png'], maxKB: 200 },
   }
   const p = presets[preset]
   let verdict = null
@@ -86,8 +86,8 @@ function FileChecker({ lang }) {
   return (
     <div>
       <div className="row ss-row">
-        <SearchSelect label="Preset" value={preset} onChange={setPreset} placeholder="Search presets..."
-          options={Object.entries(presets).map(([k, v]) => ({ value: k, label: v.label, icon: 'box' }))} />
+        <Segmented label={lang === 'mr' ? 'निवडा' : 'Preset'} value={preset} onChange={setPreset}
+          options={Object.entries(presets).map(([k, v]) => ({ value: k, label: v.short, icon: 'box' }))} />
         <div className="field"><span className="ss-label">{lang === 'mr' ? 'फाइल निवडा (अपलोड होत नाही)' : 'Choose a file (never uploaded)'}</span>
           <label className="file-chip"><Icon name="upload" size={15} /> {file ? file.name : (lang === 'mr' ? 'फाइल निवडा' : 'Browse file')}
             <input type="file" onChange={(e) => setFile(e.target.files?.[0] || null)} /></label>
@@ -147,7 +147,7 @@ function PhotoResizer({ lang }) {
           <input type="file" accept="image/*" onChange={(e) => onFile(e.target.files?.[0])} /></label>
         <div className="field"><span className="ss-label">Width px</span><input type="number" value={w} onChange={(e) => setW(+e.target.value || 200)} /></div>
         <div className="field"><span className="ss-label">Height px</span><input type="number" value={h} onChange={(e) => setH(+e.target.value || 230)} /></div>
-        <SearchSelect label="Quality" value={String(quality)} onChange={(v) => setQuality(+v)}
+        <Segmented label="Quality" value={String(quality)} onChange={(v) => setQuality(+v)}
           options={[{ value: '0.6', label: '0.6 (smaller)', icon: 'photo' }, { value: '0.8', label: '0.8 (balanced)', icon: 'photo' }, { value: '0.92', label: '0.92 (clearer)', icon: 'photo' }]} />
         <button className="btn primary small" disabled={!src} onClick={resize}><Icon name="scissors" size={14} /> Resize</button>
       </div>
@@ -189,18 +189,15 @@ export default function Tools() {
     value: tool.id,
     label: tool[lang] || tool.en,
     icon: tool.icon,
-    search: (tool.en + ' ' + tool.mr).toLowerCase(),
   }))
   return (
     <div>
       <h2 className="with-icon" style={{ margin: '4px 0' }}><Icon name="wrench" size={26} /> {t.tools_title}</h2>
       <p className="muted">{t.tools_sub}</p>
-      <div className="tool-picker">
-        <SearchSelect label={lang === 'mr' ? 'साधन निवडा किंवा शोधा' : 'Pick or search a tool'}
-          value={active} onChange={setActive}
-          placeholder={lang === 'mr' ? 'साधन शोधा… उदा. फोटो, फाइल, यादी' : 'Search tools… e.g. photo, file, checklist'}
-          options={toolOptions} />
-      </div>
+      <TabSwitcher className="tool-tabs"
+        label={lang === 'mr' ? 'साधन निवडा' : 'Choose a tool'}
+        value={active} onChange={setActive}
+        options={toolOptions} />
       <div className="card">
         <h3 className="with-icon" style={{ marginTop: 0 }}><Icon name={current.icon} size={20} /> {current[lang]}</h3>
         {active === 'docprep' && <Checklist id="docprep" lang={lang} />}

@@ -40,7 +40,7 @@ EduSolve AI gives the student a **clear, step-by-step, plain-language answer** f
 |---|---|
 | **Guidance engine** | Detects the problem category from the student's own sentence, asks 2 clarifying questions, then returns causes → steps → prevention → alternative. |
 | **Smart Tools** | Real file size/format validation, a real Canvas-based photo & signature resizer with a working download, and persisted checklists. |
-| **Student site** | Home, Dashboard (12 categories, search, recent, saved, progress), AI Solver (chat), Smart Tools. |
+| **Student site** | Home, Dashboard (12 category tabs, recent, saved, progress), AI Solver (chat), Smart Tools. |
 | **Admin console** | A **completely separate** React app: feedback inbox, solved-rate KPI, 7-day visit chart, category manager with feature flags, settings/data reset. |
 | **Bilingual** | Full English + Marathi interface with a single toggle, persisted to `localStorage`. |
 
@@ -125,19 +125,21 @@ The i18n system is a plain object — no library, no build step. See [`docs/LANG
 | Route | Page | What it contains |
 |---|---|---|
 | `/` | **Home** | Hero + CTA, 4 quick-action cards, Popular categories (4), How It Works (3 steps), Features (4), closing CTA banner |
-| `/dashboard` | **Dashboard** | Searchable category picker, 12 category cards, active solution panel, Recently viewed (max 6), Saved solutions, 5-item task checklist with progress % |
+| `/dashboard` | **Dashboard** | Category tab switcher (12 tabs), 12 category cards, active solution panel, Recently viewed (max 6), Saved solutions, 5-item task checklist with progress % |
 | `/solver` | **AI Problem Solver** | Chat interface with keyword detection, 2 follow-up questions, structured solution card, 5 one-click example prompts, Solved / Not Solved feedback, save, clear |
-| `/tools` | **Smart Tools** | Searchable tool picker + 6 tools (see below) |
+| `/tools` | **Smart Tools** | Tool tab switcher (6 tabs) + 6 tools (see below) |
 | `/report` | **Project Report** | A fully graphical analytics report — solved / pending / most-frequent / per-day charts, KPI cards and tables, print-to-PDF, Excel export |
 | `*` | Home | Any unknown route falls back to Home |
 
 ### 4.2 Smart Tools (the parts that genuinely work)
 
+Pick a tool from the **tab switcher** at the top of the page — six tabs, nothing to type. Inside a tool, small choices (the file preset, the photo quality) are made with a compact **segmented switcher**.
+
 | Tool | Real or informational? | What it does |
 |---|---|---|
 | **Document preparation checklist** | Real, persisted | 5 bilingual items, per-item checkboxes, progress bar, saved under `tool_docprep` |
-| **File extension and size checker** | **Real** | Reads the actual file's `name` + `size` from the File API, validates the extension against a preset and the size against the limit, prints a pass/fail verdict. Nothing is uploaded. |
-| **Photo & signature guidance + resizer** | **Real** | Loads the image via `URL.createObjectURL`, draws it to a `<canvas>` with cover-crop, `imageSmoothingQuality: 'high'`, exports real JPEG at 0.6 / 0.8 / 0.92 quality, measures the true output size in KB, and offers a genuine **Download resized JPG** link (`edusolve-{w}x{h}.jpg`). Warns when the output is upscaled and therefore soft. |
+| **File extension and size checker** | **Real** | Reads the actual file's `name` + `size` from the File API, validates the extension against the preset picked in the **Preset** switcher and the size against that preset's limit, prints a pass/fail verdict. Nothing is uploaded. |
+| **Photo & signature guidance + resizer** | **Real** | Loads the image via `URL.createObjectURL`, draws it to a `<canvas>` with cover-crop, `imageSmoothingQuality: 'high'`, exports real JPEG at the quality picked in the **Quality** switcher (0.6 / 0.8 / 0.92), measures the true output size in KB, and offers a genuine **Download resized JPG** link (`edusolve-{w}x{h}.jpg`). Warns when the output is upscaled and therefore soft. |
 | **Form-filling checklist** | Real, persisted | 5 bilingual items, `tool_formfill` |
 | **Pre-submission verification** | Real, persisted | 5 bilingual items, `tool_presubmit` |
 | **Required-document checklist** | Session-only | 3 services (Scholarship / Admission / Exam) with 5–8 documents each; switching service resets the check state |
@@ -178,6 +180,8 @@ The dataset is produced by `src/data/analytics.js`: a deterministic, seeded 30-d
 
 
 ### 4.4 File size presets (built into the checker)
+
+Pick one from the **Preset** switcher inside the file checker.
 
 | Preset | Allowed extensions | Max size |
 |---|---|---|
@@ -231,7 +235,7 @@ student marks Solved / Not Solved → written to the admin feedback inbox
 
 ## 5. The 12 Problem Categories
 
-Defined in `src/data/categories.js`. Each has an `id`, `icon`, bilingual `title`, bilingual `desc`, and a bilingual `keywords` array. Each also has a full solution set: bilingual `causes`, `steps`, `prevention`, `alternative` and two bilingual `followups`.
+Defined in `src/data/categories.js`. Each has an `id`, `icon`, bilingual `title`, a bilingual `short` label (the compact name used by the Dashboard tab switcher), bilingual `desc`, and a bilingual `keywords` array. Each also has a full solution set: bilingual `causes`, `steps`, `prevention`, `alternative` and two bilingual `followups`.
 
 | # | id | Icon | Title (EN) | Title (MR) |
 |---|---|---|---|---|
@@ -281,13 +285,14 @@ Taniya/                          ← repository root (project folder name)
 │   │   ├── icons.jsx            46 inline SVG icons + <Icon> component
 │   │   ├── ui.jsx               Layout, Navbar, Sidebar, Footer, MobileMenu,
 │   │   │                        MobileTabBar, Logo, CategoryCard, SolutionCard
-│   │   ├── PremiumUI.jsx        SearchSelect (searchable combobox), Toast, useToast
+│   │   ├── PremiumUI.jsx        TabSwitcher + Segmented (tab / pill switchers), Toast, useToast
 │   │   └── Charts.jsx           Hand-written SVG charts: Donut, Column, Area,
 │   │                            BarList, SplitBar, Sparkline, Gauge, Legend
 │   ├── context/
 │   │   └── LanguageContext.jsx  en/mr provider + useLang() hook
 │   ├── data/
-│   │   ├── categories.js        12 categories + full solution bank + detectCategory()
+│   │   ├── categories.js        12 categories (id, icon, title, short, desc, keywords)
+│   │   │                        + full solution bank + detectCategory()
 │   │   ├── report.js            Project report content, live stats, storage + design tables
 │   │   ├── analytics.js         30-day dataset, device merge, all report aggregates
 │   │   ├── reportSheets.js      Analytics → 5 Excel sheet definitions (bilingual)
@@ -301,9 +306,9 @@ Taniya/                          ← repository root (project folder name)
 │   │   └── xlsx.js              Dependency-free XLSX writer (ZIP + OOXML, no npm dep)
 │   └── pages/
 │       ├── Home.jsx             Hero, popular, how-it-works, features, CTA
-│       ├── Dashboard.jsx        Categories, search, solution, recent, saved, checklist
+│       ├── Dashboard.jsx        Category tabs, solution, recent, saved, checklist
 │       ├── Solver.jsx           Chat flow, follow-ups, solution card, feedback
-│       ├── Tools.jsx            6 tools incl. real file checker + canvas resizer
+│       ├── Tools.jsx            6 tools in a tab switcher incl. real file checker + canvas resizer
 │       └── Report.jsx           Graphical analytics report — KPI cards, charts, tables
 │
 ├── admin-app/                   ── SEPARATE ADMIN APP ──

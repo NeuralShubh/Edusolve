@@ -106,9 +106,12 @@ Icon inventory: `globe, server, lock, key, edit, upload, box, photo, card, check
 ### 3.7 `src/components/PremiumUI.jsx`
 | Export | Purpose |
 |---|---|
-| `SearchSelect` | A searchable combobox: button that opens a popup with a filter input, keyboard navigation (↑ ↓ Enter Esc), mouse hover highlight, outside-click close, and "No match found" empty state. Props: `label, value, onChange, options, placeholder`. Each option is `{ value, label, icon, search }`; matching checks `option.search || option.label`. |
+| `TabSwitcher` | A horizontally scrollable strip of tab buttons: every option renders as an icon + label button, the option whose `value` matches `value` is the active tab, and the strip scrolls sideways on a narrow screen. Props: `label, value, onChange, options, className`. Each option is `{ value, label, icon }`. |
+| `Segmented` | A compact pill switcher for a small set of choices (file preset, photo quality). Every option renders as a pill with an optional icon and the active one is highlighted. Props: `label, value, onChange, options`. Each option is `{ value, label, icon }`. |
 | `Toast` | A 2.6-second auto-dismissing status pill. |
 | `useToast` | Hook returning `[node, setMsg]` — drop `node` into JSX, call `setMsg('…')` to show a toast. |
+
+Neither switcher has a filter input or a popup: every option is rendered up front, so there is no empty state to handle.
 
 ### 3.8 `src/lib/store.js`
 The single place that knows about persistence. Internal helpers `loadJSON(key, fallback)` and `saveJSON(key, value)` swallow exceptions.
@@ -137,10 +140,11 @@ Three exports:
 ```js
 { id: 'internet', icon: 'globe',
   title: { en: '…', mr: '…' },
+  short: { en: 'Internet', mr: 'इंटरनेट' },   // short label for the tab switcher
   desc:  { en: '…', mr: '…' },
   keywords: ['internet', 'wifi', …, 'इंटरनेट', 'नेट', 'वायफाय', 'स्लो'] }
 ```
-The `other` category has an empty `keywords` array.
+The `other` category has an empty `keywords` array. The `short` pair is the compact one-or-two-word name shown on the Dashboard tab switcher instead of the full `title`.
 
 **`SOLUTIONS`** — object keyed by category id:
 ```js
@@ -194,11 +198,12 @@ Every category card navigates to `/dashboard?cat=<id>`.
 
 #### `pages/Dashboard.jsx`
 State: `activeCat`, `recent` (`edusolve_recent`), `savedIds` (`edusolve_saved`), `checks` (`edusolve_checks`, 5 booleans), plus a toast.
-- The `SearchSelect` option `search` string concatenates `title.en + title.mr + desc.en + desc.mr + keywords` — so searching *"otp"* finds the OTP category by keyword, not just by title.
+- A `TabSwitcher` lists all 12 categories as tabs, each labelled with the category's short `short[lang]` label and its `icon`. Clicking a tab calls `openCat(id)`.
 - `openCat(id)` pushes the category to `recent` (dedup, max 6) and persists it.
 - The active solution is rendered by `SolutionCard` via `buildSolution(activeCat, lang)`.
 - **Solved** → `addFeedback({ source: 'dashboard' })` + toast.
 - **Not Solved** → `addFeedback({ source: 'dashboard' })` + navigates to `/solver?q=<title>`.
+- The same 12 categories are also listed below as `CategoryCard`s; clicking a card opens the same category.
 - Three panels: Recently viewed, Saved, and Task progress with 5 checklist items and a percentage bar.
 
 #### `pages/Solver.jsx`
@@ -216,8 +221,9 @@ The chat body auto-scrolls to the bottom on every `messages` / `solution` change
 #### `pages/Tools.jsx`
 Local sub-components inside the same file: `Checklist`, `FileChecker`, `PhotoResizer`, `RequiredDocs`.
 
+- A `TabSwitcher` lists the 6 tools as tabs (icon + bilingual label); the active tab's tool is rendered in the card below it.
 - **`Checklist`** — reads `localStorage['tool_' + id]`, renders checkboxes and a progress bar.
-- **`FileChecker`** — four presets; reads `file.name` for the extension and `file.size / 1024` for KB; produces `{ ext, kb, okExt, okSize, ok }` and renders a green/red verdict.
+- **`FileChecker`** — four presets picked with a `Segmented` switcher; reads `file.name` for the extension and `file.size / 1024` for KB; produces `{ ext, kb, okExt, okSize, ok }` and renders a green/red verdict.
 - **`PhotoResizer`** — the most involved component:
   ```js
   const scale = Math.max(w / img.width, h / img.height)   // cover crop
@@ -227,7 +233,7 @@ Local sub-components inside the same file: `Checklist`, `FileChecker`, `PhotoRes
   const url = canvas.toDataURL('image/jpeg', quality)
   const bytes = Math.round((url.length * 3) / 4)          // real byte estimate
   ```
-  White background is filled first, `imageSmoothingQuality = 'high'`. The output link is `download={edusolve-${w}x${h}.jpg}`. If the source was smaller than the target, a warning explains that the result will look soft.
+  White background is filled first, `imageSmoothingQuality = 'high'`. The output link is `download={edusolve-${w}x${h}.jpg}`. If the source was smaller than the target, a warning explains that the result will look soft. Width and height are plain number inputs; the quality (0.6 / 0.8 / 0.92) is picked with a `Segmented` switcher.
 - **`RequiredDocs`** — three services with 5–8 documents each; the check state is **not** persisted.
 
 #### `pages/Report.jsx`
@@ -243,7 +249,7 @@ The **graphical** analytics report. It renders no prose sections — every fact 
 - One `@import` for Google Fonts (Sora, Manrope, Noto Sans Devanagari).
 - `:root` design tokens (see the README design-system table).
 - Layout: `.app-shell` (sidebar + content grid), `.navbar`, `.sidebar`, `.tabbar`, `.footer`.
-- Components: `.btn` (+`.primary` `.secondary` `.small` `.block` `.ghost`), `.card`, `.cat-card`, `.sol-grid`, `.solution`, `.chat`, `.msg` (+`.user` `.bot`), `.opt-row`, `.ss` (search select), `.toast`, `.progress`, `.check`, `.pill`, `.chip`, `.file-chip`, `.result` (+`.ok` `.bad`), `.kpi` (admin), `.bar` / `.bar-col` / `.chart` (admin), `.ring` (admin donut).
+- Components: `.btn` (+`.primary` `.secondary` `.small` `.block` `.ghost`), `.card`, `.cat-card`, `.sol-grid`, `.solution`, `.chat`, `.msg` (+`.user` `.bot`), `.opt-row`, the tab-switcher strip and the segmented pill styles, `.toast`, `.progress`, `.check`, `.pill`, `.chip`, `.file-chip`, `.result` (+`.ok` `.bad`), `.kpi` (admin), `.bar` / `.bar-col` / `.chart` (admin), `.ring` (admin donut).
 - Report section: `.report-hero`, `.report-layout`, `.report-toc`, `.toc-link`, `.rep-sec`, `.rep-h2`, `.rep-h3`, `.rep-p`, `.rep-ul`, `.rep-ol`, `.rep-note`, `.rep-code`, `.rep-table`, `.rep-qa`, `.rep-q`, `.rep-end`, `.report-promo`.
 - Graphical report: `.an-hero`, `.an-controls`, `.an-seg`, `.an-headline`, `.an-kpi-grid`, `.an-kpi`, `.an-grid`, `.an-panel`, `.an-donut-wrap`, `.an-gauge-wrap`, `.an-mini-stats`, `.an-source-grid`, `.an-insight`, `.an-td-cat`, `.an-rate-cell`.
 - Chart primitives: `.ch-wrap`, `.ch-svg`, `.ch-grid`, `.ch-axis-label`, `.ch-bar`, `.ch-arc`, `.ch-donut-num`, `.ch-gauge-num`, `.ch-barlist`, `.ch-track`, `.ch-fill`, `.ch-split`, `.ch-splitbar`, `.ch-spark`, `.ch-legend`.
@@ -310,10 +316,10 @@ Pattern: every persistent list is read with a `load()` helper that returns a fal
 
 | To add… | Edit | Notes |
 |---|---|---|
-| A new problem category | `src/data/categories.js` | Add to `CATEGORIES` (with bilingual title/desc/keywords) and add a matching `SOLUTIONS[id]` block with both `followups`. |
+| A new problem category | `src/data/categories.js` | Add to `CATEGORIES` (with bilingual title/short/desc/keywords) and add a matching `SOLUTIONS[id]` block with both `followups`. The `short` label is what the Dashboard tab switcher shows. |
 | A new UI string | `src/i18n/translations.js` | Add the key to **both** `en` and `mr`. |
 | A new language | `src/i18n/translations.js` + `LanguageContext.jsx` | See [`LANGUAGES.md`](LANGUAGES.md). |
-| A new tool | `src/pages/Tools.jsx` | Add to `TOOLS`, then a render branch in the tool card. |
+| A new tool | `src/pages/Tools.jsx` | Add to `TOOLS` — the tool tab switcher picks it up automatically — then add a render branch in the tool card. |
 | A new icon | `src/components/icons.jsx` | Add a `PATHS` entry. |
 | A new route | `src/App.jsx` | Add a `<Route>` and a page under `src/pages/`. |
 | New report content | `src/data/report.js` | Add a section to `REPORT_SECTIONS`, or a new block type in `src/pages/Report.jsx`. |

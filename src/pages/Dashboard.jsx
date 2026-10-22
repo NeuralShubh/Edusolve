@@ -6,7 +6,7 @@ import { CATEGORIES } from '../data/categories'
 import { buildSolution } from '../engine/solverEngine'
 import { CategoryCard, SolutionCard } from '../components/ui'
 import { Icon } from '../components/icons'
-import { SearchSelect, useToast } from '../components/PremiumUI'
+import { TabSwitcher, useToast } from '../components/PremiumUI'
 import { addFeedback } from '../lib/store'
 
 function load(key, fallback) {
@@ -40,9 +40,8 @@ export default function Dashboard() {
 
   const catOptions = useMemo(() => CATEGORIES.map((c) => ({
     value: c.id,
-    label: c.title[lang] || c.title.en,
+    label: (c.short && c.short[lang]) || c.title[lang] || c.title.en,
     icon: c.icon,
-    search: [c.title.en, c.title.mr, c.desc.en, c.desc.mr, c.keywords.join(' ')].join(' ').toLowerCase(),
   })), [lang])
 
   const catById = (id) => CATEGORIES.find((x) => x.id === id)
@@ -78,9 +77,9 @@ export default function Dashboard() {
         <h2 className="with-icon" style={{ margin: 0 }}><Icon name="sparkles" size={24} /> {t.welcome}</h2>
         <p className="muted">{t.dash_sub}</p>
         <div className="search-row">
-          <SearchSelect label={lang === 'mr' ? 'समस्या निवडा किंवा शोधा' : 'Pick or search a problem'}
+          <TabSwitcher className="cat-tabs"
+            label={lang === 'mr' ? 'समस्या प्रकार निवडा' : 'Pick a problem type'}
             value={activeCat} onChange={openCat}
-            placeholder={t.search_ph}
             options={catOptions} />
           <button className="btn primary" onClick={askAI}><Icon name="chat" size={16} /> {t.ask_ai}</button>
         </div>

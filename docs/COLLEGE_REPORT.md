@@ -38,7 +38,7 @@ The project is deliberately **frontend-only**. There is no backend, no database 
 - 12 predefined problem categories with full bilingual solution content.
 - A rule-based natural-language classifier for those categories.
 - A conversational guidance flow with follow-up questions.
-- A student dashboard with search, recents, saves and progress checklists.
+- A student dashboard with a category tab switcher, recents, saves and progress checklists.
 - Six smart tools, of which two perform real local file processing.
 - A standalone admin console with feedback analytics and content flags.
 - Progressive Web App support (installable, offline app shell).
@@ -108,7 +108,7 @@ The project is deliberately **frontend-only**. There is no backend, no database 
 | `src/context/LanguageContext.jsx` | Language state, persistence and `<html lang>` synchronisation. |
 | `src/lib/store.js` | The only module that touches `localStorage` for cross-cutting data. |
 | `src/components/ui.jsx` | Layout shell and the shared `SolutionCard` / `CategoryCard` widgets. |
-| `src/components/PremiumUI.jsx` | `SearchSelect` (searchable combobox with keyboard support) and `Toast` / `useToast`. |
+| `src/components/PremiumUI.jsx` | `TabSwitcher` (a scrollable strip of tab buttons) and `Segmented` (a compact pill switcher) — the two selection controls used across the app — plus `Toast` / `useToast`. |
 | `src/components/icons.jsx` | the 43-icon SVG set and the `<Icon>` renderer. |
 | `src/pages/*` | The four student screens. |
 | `admin-app/src/App.jsx` | Login gate, four admin panels and the admin language toggle. |
@@ -149,10 +149,10 @@ return { id: best, confident: bestScore ≥ 2 }
 | Page | Purpose | Key implementation |
 |---|---|---|
 | **Home** | Orientation and entry points | Hero, 4 quick actions, 4 popular categories (`CATEGORIES.slice(5, 9)`), a 3-step "How It Works", a 4-card feature grid, closing CTA |
-| **Dashboard** | The problem library | `SearchSelect` whose search index concatenates `title.en + title.mr + desc.en + desc.mr + keywords`; 12 `CategoryCard`s; the active `SolutionCard`; recents (max 6); saves; a 5-item checklist with a progress bar |
+| **Dashboard** | The problem library | A `TabSwitcher` listing all 12 categories as tabs, each labelled with the category's short bilingual name and icon; 12 `CategoryCard`s; the active `SolutionCard`; recents (max 6); saves; a 5-item checklist with a progress bar |
 | **AI Problem Solver** | The conversational core | `handleUserText` → `startSession` → `detectCategory` → 2 `answerOption` steps → `finishSolution` → `buildSolution` → `SolutionCard`; 350 ms / 300 ms simulated thinking delays; auto-scrolling chat; 5 example prompts; Solved / Not Solved capture; deep link via `?q=` |
 | **Project Report** | The graphical analytics report, rendered live inside the app | 6 KPI cards with sparklines; donut (solved vs pending), gauge (solve rate), stacked columns (solved per day), ranked bars (most frequent problems), per-type rate bars, cumulative area, weekly columns, source split bars; pending help-desk table and day-wise table; data-source and time-window switches; hand-written SVG charts in `src/components/Charts.jsx`; `@media print` stylesheet for Save-as-PDF; one-click Excel export — a dependency-free XLSX writer in `src/lib/xlsx.js` produces a 5-sheet workbook (`Summary`, `Daily`, `By Problem Type`, `By Source`, `Weekly`) from `src/data/reportSheets.js`, plus the full written document as Markdown |
-| **Smart Tools** | Practical utilities | 6 tools; `FileChecker` reads real `File.size` and `File.name`; `PhotoResizer` draws to a Canvas with cover-crop, `imageSmoothingQuality: 'high'`, exports a real JPEG and measures its true byte size; `Checklist` persists per-tool state under `tool_<id>` |
+| **Smart Tools** | Practical utilities | 6 tools chosen from a `TabSwitcher` of 6 tabs; `FileChecker` reads real `File.size` and `File.name` and compares them with the preset picked in a `Segmented` switcher; `PhotoResizer` draws to a Canvas with cover-crop, `imageSmoothingQuality: 'high'`, exports a real JPEG at the quality picked in a `Segmented` switcher and measures its true byte size; `Checklist` persists per-tool state under `tool_<id>` |
 
 ### 8.2 Admin console (separate app)
 

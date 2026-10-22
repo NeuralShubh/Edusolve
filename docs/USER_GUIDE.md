@@ -19,9 +19,9 @@ Everything runs in your own browser. You do not need an account, and no file you
 | Screen | What it is for |
 |---|---|
 | **Home** | The starting point. Big "Start Solving" button, 4 quick actions, popular categories, and a 3-step explanation of how the site works. |
-| **Dashboard** | The full problem library. Search or pick from 12 categories, read the solution, and track your progress on a checklist. |
+| **Dashboard** | The full problem library. Pick a problem type from 12 tabs, read the solution, and track your progress on a checklist. |
 | **AI Problem Solver** | The chat. Describe your problem in your own words and get guided. |
-| **Smart Tools** | Practical helpers: check a file's size and format, resize a photo or signature, and work through checklists. |
+| **Smart Tools** | Six tabs of practical helpers: check a file's size and format, resize a photo or signature, and work through checklists. |
 | **Project Report** | The complete project report — abstract, objectives, architecture, algorithm, testing, viva questions — with a print button and a Markdown download. |
 
 On a phone, the four screens are the buttons at the **bottom** of the screen (the raised round button in the middle opens the Solver). On a computer, the same links are in the **left sidebar**. The top bar has the language switch (English ⇄ मराठी) on every screen.
@@ -57,21 +57,25 @@ There are also 5 one-tap **example prompts** if you would rather not type, and a
 
 ## A5. Using the Dashboard
 
-- **Search or pick a problem.** The search box matches titles, descriptions *and* keywords, so searching *"OTP"*, *"upi"* or *"file too large"* all work.
-- **The 12 category cards** open a full solution immediately.
+- **Pick a problem type.** A tab strip at the top of the page lists all **12 problem types**. Tap the tab that matches your problem and its full solution opens immediately. On a phone the strip scrolls sideways, so swipe it to see every tab.
+- **The 12 category cards** below the strip do the same thing — tap a card and the full solution opens.
 - **Recently viewed** — the last 6 categories you opened.
 - **Saved solutions** — tap **Save** on any solution to keep it here.
 - **Task progress & checklists** — 5 pre-form tasks (Aadhaar and marksheet ready, documents under the size limit, photo and signature ready, draft saved, preview checked) with a progress bar.
+
+> If your problem does not fit any tab, use the **Ask AI** button or the **AI Problem Solver** and describe it in your own words — the solver accepts free text and picks the closest category for you.
 
 ---
 
 ## A6. Smart Tools explained
 
+The six tools sit in a **tab strip** at the top of the page. Tap a tab to open that tool — all six are one tap away. Inside a tool, small choices (the file preset, the photo quality) are made with a short row of **pill buttons**.
+
 ### 1. Document preparation checklist
 Five things to have ready before you start any form. Tick them off; your progress is saved.
 
 ### 2. File extension and size checker — *this one really works*
-1. Choose a preset:
+1. Tap the preset you need in the **Preset** switcher:
    - PDF for scholarship documents — max **200 KB**
    - Passport photo JPG — max **50 KB**
    - Signature JPG — max **30 KB**
@@ -87,7 +91,7 @@ Your file is **read on your device only**. It is never uploaded anywhere, and no
 1. Take the photo properly: **white background, daylight, face straight**. For a signature: **black pen on plain paper**.
 2. Choose the photo.
 3. Set the width and height in pixels (200 × 230 is the usual passport-photo size).
-4. Choose a quality: **0.6** (smallest), **0.8** (balanced) or **0.92** (clearest).
+4. Tap the quality in the **Quality** switcher: **0.6** (smallest), **0.8** (balanced) or **0.92** (clearest).
 5. Press **Resize**. The app shows the exact output size in KB.
 6. Press **Download resized JPG** and upload that file to your portal.
 

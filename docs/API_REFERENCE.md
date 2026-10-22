@@ -17,25 +17,30 @@ type Category = {
                         // | 'submission' | 'reload' | 'other'
   icon: string          // key into PATHS in src/components/icons.jsx
   title: { en: string, mr: string }
+  short: { en: string, mr: string }  // compact label for the Dashboard tab switcher
+                        // e.g. 'internet' → { en: 'Internet', mr: 'इंटरनेट' }
+                        //      'otp'      → { en: 'Login & OTP', mr: 'लॉगिन व OTP' }
   desc:  { en: string, mr: string }
   keywords: string[]    // English + Marathi trigger words; [] for 'other'
 }
 ```
 
-| # | id | icon | keywords (count) |
-|---|---|---|---|
-| 1 | `internet` | `globe` | 14 |
-| 2 | `server` | `server` | 14 |
-| 3 | `otp` | `lock` | 14 |
-| 4 | `password` | `key` | 6 |
-| 5 | `form-entry` | `edit` | 14 |
-| 6 | `doc-upload` | `upload` | 13 |
-| 7 | `file-size` | `box` | 14 |
-| 8 | `photo` | `photo` | 9 |
-| 9 | `payment` | `card` | 13 |
-| 10 | `submission` | `checkcircle` | 8 |
-| 11 | `reload` | `refresh` | 13 |
-| 12 | `other` | `bulb` | 0 |
+| # | id | icon | short (EN) | keywords (count) |
+|---|---|---|---|---|
+| 1 | `internet` | `globe` | Internet | 14 |
+| 2 | `server` | `server` | Server | 14 |
+| 3 | `otp` | `lock` | Login & OTP | 14 |
+| 4 | `password` | `key` | Password | 6 |
+| 5 | `form-entry` | `edit` | Form Entry | 14 |
+| 6 | `doc-upload` | `upload` | Doc Upload | 13 |
+| 7 | `file-size` | `box` | File Size | 14 |
+| 8 | `photo` | `photo` | Photo | 9 |
+| 9 | `payment` | `card` | Payment | 13 |
+| 10 | `submission` | `checkcircle` | Submission | 8 |
+| 11 | `reload` | `refresh` | Reload | 13 |
+| 12 | `other` | `bulb` | Other | 0 |
+
+Every category also carries a `short: { en, mr }` pair — the one-or-two-word label shown on the Dashboard tab switcher instead of the full `title`. The Marathi value is the Marathi tab label.
 
 ### `SOLUTIONS` — `Object<categoryId, SolutionSet>`
 
@@ -249,16 +254,26 @@ Layout: header (icon, "Problem identified", title, Save) → 4-block grid (Possi
 
 ## 8. `src/components/PremiumUI.jsx`
 
-### `<SearchSelect />`
+### `<TabSwitcher />`
 | Prop | Type | Default | Notes |
 |---|---|---|---|
-| `label` | `string` | — | Label above the field. Hidden if falsy. |
+| `label` | `string` | — | Label above the strip. Hidden if falsy. |
 | `value` | `string \| number` | — | The currently selected option's `value`. |
-| `onChange` | `(value) => void` | — | Fired with the new `value` when an option is picked. |
-| `options` | `{ value, label, icon?, search? }[]` | — | `search` overrides the text used for filtering. |
-| `placeholder` | `string` | `'Search...'` | Shown in the field when nothing is selected, and in the filter input. |
+| `onChange` | `(value) => void` | — | Fired with the new `value` when a tab is clicked. |
+| `options` | `{ value, label, icon? }[]` | — | One tab per entry. `label` is already localised; `icon` is a key into `PATHS`. |
+| `className` | `string` | `''` | Appended to the strip's wrapper class. |
 
-Behaviour: click to open; type to filter; ↑/↓ to move the highlight; Enter to pick; Esc to close; click outside to close; hover to highlight; "No match found" when the filter is empty.
+Renders a horizontally scrollable strip of tab buttons — each button shows its option `icon` plus its `label`, and the button whose `value` matches `value` is marked as the active tab. There is no filter input, no popup and no keyboard popup navigation: the whole set of options is always visible, so the strip scrolls sideways on a narrow screen.
+
+### `<Segmented />`
+| Prop | Type | Default | Notes |
+|---|---|---|---|
+| `label` | `string` | — | Label above the pills. Hidden if falsy. |
+| `value` | `string \| number` | — | The currently selected option's `value`. |
+| `onChange` | `(value) => void` | — | Fired with the new `value` when a pill is clicked. |
+| `options` | `{ value, label, icon? }[]` | — | One pill per entry. `label` is already localised; `icon` is a key into `PATHS`. |
+
+A compact pill switcher for a small set of choices (file presets, photo quality). Every option is rendered as a pill button; the active one is highlighted. Values are passed through unchanged, so a numeric option can be carried as a string and converted by the caller.
 
 ### `<Toast />`
 | Prop | Type | Notes |
@@ -281,9 +296,9 @@ const [toast, showToast] = useToast()
 | File | Export | Key props |
 |---|---|---|
 | `src/pages/Home.jsx` | `Home` | none |
-| `src/pages/Dashboard.jsx` | `Dashboard` | none (reads `?cat=` via `useSearchParams`) |
+| `src/pages/Dashboard.jsx` | `Dashboard` | none (reads `?cat=` via `useSearchParams`; a `TabSwitcher` of the 12 categories picks the problem type) |
 | `src/pages/Solver.jsx` | `Solver` | none (reads `?q=` via `useSearchParams`) |
-| `src/pages/Tools.jsx` | `Tools` | none |
+| `src/pages/Tools.jsx` | `Tools` | none (a `TabSwitcher` of the 6 tools picks the tool; `Segmented` picks the preset and the quality) |
 | `src/pages/Report.jsx` | `Report` | none (reads the data source and time window from component state) |
 | `admin-app/src/App.jsx` | `App` | none |
 
@@ -291,7 +306,7 @@ const [toast, showToast] = useToast()
 
 | Parameter | Page | Effect |
 |---|---|---|
-| `?cat=<id>` | Dashboard | Pre-selects and opens that category. Used by the Home "Popular" cards. |
+| `?cat=<id>` | Dashboard | Pre-selects that tab in the category `TabSwitcher` and opens the category. Used by the Home "Popular" cards. |
 | `?q=<text>` | Solver | Auto-submits the text as the user's first message on mount. Used by the Dashboard "Ask AI" button and by "Not Solved". |
 
 ---
@@ -301,11 +316,11 @@ const [toast, showToast] = useToast()
 | URL | Page | Notes |
 |---|---|---|
 | `#/` | Home | — |
-| `#/dashboard` | Dashboard | — |
-| `#/dashboard?cat=payment` | Dashboard | Opens the Payment category |
+| `#/dashboard` | Dashboard | The category `TabSwitcher` (12 tabs) picks the problem type |
+| `#/dashboard?cat=payment` | Dashboard | Selects the Payment tab in the `TabSwitcher` and opens the Payment category |
 | `#/solver` | Solver | — |
 | `#/solver?q=My%20form%20is%20not%20submitting` | Solver | Auto-runs the query |
-| `#/tools` | Tools | — |
+| `#/tools` | Tools | The tool `TabSwitcher` (6 tabs) picks the tool |
 | `#/report` | Report | The graphical analytics report — KPI cards, charts, tables, data-source and time-window switches, print, Markdown export |
 | `#/<anything else>` | Home | Catch-all fallback |
 

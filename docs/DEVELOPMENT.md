@@ -92,10 +92,13 @@ That is why there is only one `node_modules` and one `package.json`. If you move
   id: 'wifi',                       // unique, kebab-case
   icon: 'globe',                    // must exist in PATHS
   title: { en: 'Wi-Fi Signal Problems', mr: 'वाय-फाय सिग्नल समस्या' },
+  short: { en: 'Wi-Fi', mr: 'वाय-फाय' },   // short label for the Dashboard tab switcher
   desc:  { en: 'Weak signal, frequent drops.', mr: 'कमकुवत सिग्नल, वारंवार तुटते.' },
   keywords: ['wifi signal', 'weak signal', 'disconnect', 'वायफाय', 'सिग्नल'],
 }
 ```
+
+> The `short` pair is **required** — the Dashboard tab switcher renders `short[lang]` on each tab, so a category without it has no tab label. Keep it to one or two words.
 
 **Step 2** — add the matching entry to `SOLUTIONS`:
 
@@ -112,7 +115,7 @@ wifi: {
 },
 ```
 
-**Step 3** — nothing else. The Dashboard grid, the search index, the Home popular list, the admin category manager and the detector all read `CATEGORIES` / `SOLUTIONS` automatically.
+**Step 3** — nothing else. The Dashboard tab switcher, the Dashboard grid, the Home popular list, the admin category manager and the detector all read `CATEGORIES` / `SOLUTIONS` automatically.
 
 > The Home "Popular" strip is a hard-coded slice: `CATEGORIES.slice(5, 9)`. Move the slice indices if you want different categories featured.
 
@@ -138,7 +141,7 @@ Then add a render branch inside the tool card:
 {active === 'mytool' && <MyTool lang={lang} />}
 ```
 
-For a persistent checklist, copy the `Checklist` pattern (it stores under `tool_<id>`).
+The tool tab switcher is built from `TOOLS`, so a new entry shows up as a tab on its own — nothing else to wire up. For a persistent checklist, copy the `Checklist` pattern (it stores under `tool_<id>`).
 
 ### 4.4 Add an icon
 
@@ -370,7 +373,7 @@ git checkout main
 
 - All icons are `aria-hidden="true"` decorative SVGs; the accessible name comes from the surrounding text or `aria-label`.
 - Interactive elements are real `<button>` / `<a>` / `<input>` elements — keyboard accessible by default.
-- `SearchSelect` implements the listbox pattern with `role="listbox"`, `aria-haspopup`, `aria-expanded` and full arrow-key navigation.
+- `TabSwitcher` and `Segmented` render every option as a real `<button>`, so the tabs are keyboard reachable in reading order and each one announces its own icon + label. There is no popup listbox any more, so no arrow-key navigation is needed.
 - `Toast` uses `role="status"` so it is announced.
 - `document.documentElement.lang` is kept accurate for screen readers.
 - Colour is never the only signal — verdicts pair colour with an icon and text.
