@@ -20,7 +20,8 @@ const TXT = {
     repo: 'Repository',
     source: 'Data source',
     window: 'Time window',
-    days: (n) => `last ${n} days`,
+    days: (n) => `${n} days`,
+    lastDays: (n) => `last ${n} days`,
     reported: 'Problems reported',
     solved: 'Problems solved',
     pending: 'Problems pending',
@@ -76,7 +77,8 @@ const TXT = {
     repo: 'रिपॉझिटरी',
     source: 'माहितीचा स्रोत',
     window: 'कालावधी',
-    days: (n) => `गेल्या ${n} दिवस`,
+    days: (n) => `${n} दिवस`,
+    lastDays: (n) => `गेल्या ${n} दिवस`,
     reported: 'नोंदवलेल्या समस्या',
     solved: 'सोडवलेल्या समस्या',
     pending: 'प्रलंबित समस्या',
@@ -223,6 +225,28 @@ export default function Report() {
       <h1 className="sr-only">{t.title} — {t.subtitle}</h1>
 
       <section className="an-toolbar">
+        <div className="an-control">
+          <span className="an-control-label">{t.source}</span>
+          <div className="an-seg">
+            {SCOPES.map((s) => (
+              <button key={s.id} className={scope === s.id ? 'on' : ''} onClick={() => setScope(s.id)}>
+                {lang === 'mr' ? s.mr : s.en}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="an-control">
+          <span className="an-control-label">{t.window}</span>
+          <div className="an-seg">
+            {RANGE_OPTIONS.map((n) => (
+              <button key={n} className={days === n ? 'on' : ''} onClick={() => setDays(n)}>
+                {t.days(n)}
+              </button>
+            ))}
+          </div>
+        </div>
+
         <div className="an-toolbar-actions">
           <button className="btn primary small" onClick={() => window.print()}>
             <Icon name="listcheck" size={15} /> {t.print}
@@ -236,29 +260,6 @@ export default function Report() {
           <a className="btn small secondary" href={REPORT_META.repo} target="_blank" rel="noreferrer">
             <Icon name="cpu" size={15} /> {t.repo}
           </a>
-        </div>
-
-        <div className="an-toolbar-filters">
-          <div className="an-control">
-            <span className="an-control-label">{t.source}</span>
-            <div className="an-seg">
-              {SCOPES.map((s) => (
-                <button key={s.id} className={scope === s.id ? 'on' : ''} onClick={() => setScope(s.id)}>
-                  {lang === 'mr' ? s.mr : s.en}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="an-control">
-            <span className="an-control-label">{t.window}</span>
-            <div className="an-seg">
-              {RANGE_OPTIONS.map((n) => (
-                <button key={n} className={days === n ? 'on' : ''} onClick={() => setDays(n)}>
-                  {t.days(n)}
-                </button>
-              ))}
-            </div>
-          </div>
         </div>
 
         <p className="an-scope-note">
@@ -278,7 +279,7 @@ export default function Report() {
 
       {/* ---------------- KPI cards ---------------- */}
       <div className="an-kpi-grid">
-        <Kpi icon="chat" label={t.reported} value={totals.reported} sub={t.days(days)} />
+        <Kpi icon="chat" label={t.reported} value={totals.reported} sub={t.lastDays(days)} />
         <Kpi icon="checkcircle" label={t.solved} value={totals.solved} color={CHART_COLORS.solved}
           spark={a.daily.map((d) => d.solved)} sparkColor={CHART_COLORS.solved}
           sub={`${totals.rate}% ${lang === 'mr' ? 'दर' : 'of all reports'}`} />
