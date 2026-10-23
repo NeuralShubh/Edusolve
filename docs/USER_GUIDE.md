@@ -19,7 +19,7 @@ Everything runs in your own browser. You do not need an account, and no file you
 | Screen | What it is for |
 |---|---|
 | **Home** | The starting point. Big "Start Solving" button, 4 quick actions, popular categories, and a 3-step explanation of how the site works. |
-| **Dashboard** | The full problem library. Pick a problem type from 12 tabs, read the solution, and track your progress on a checklist. |
+| **Dashboard** | The full problem library. Tap a category card, read the solution, and track your progress on a checklist. |
 | **AI Problem Solver** | The chat. Describe your problem in your own words and get guided. |
 | **Smart Tools** | Six tabs of practical helpers: check a file's size and format, resize a photo or signature, and work through checklists. |
 | **Project Report** | The complete project report — abstract, objectives, architecture, algorithm, testing, viva questions — with a print button and a Markdown download. |
@@ -57,13 +57,12 @@ There are also 5 one-tap **example prompts** if you would rather not type, and a
 
 ## A5. Using the Dashboard
 
-- **Pick a problem type.** A tab strip at the top of the page lists all **12 problem types**. Tap the tab that matches your problem and its full solution opens immediately. On a phone the strip scrolls sideways, so swipe it to see every tab.
-- **The 12 category cards** below the strip do the same thing — tap a card and the full solution opens.
+- **The 12 category cards** list all **12 problem types**. Tap a card and the full solution opens.
 - **Recently viewed** — the last 6 categories you opened.
 - **Saved solutions** — tap **Save** on any solution to keep it here.
 - **Task progress & checklists** — 5 pre-form tasks (Aadhaar and marksheet ready, documents under the size limit, photo and signature ready, draft saved, preview checked) with a progress bar.
 
-> If your problem does not fit any tab, use the **Ask AI** button or the **AI Problem Solver** and describe it in your own words — the solver accepts free text and picks the closest category for you.
+> If your problem does not fit any category, use the **Ask AI** button or the **AI Problem Solver** and describe it in your own words — the solver accepts free text and picks the closest category for you.
 
 ---
 

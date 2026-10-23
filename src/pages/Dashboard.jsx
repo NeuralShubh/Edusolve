@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useLang } from '../context/LanguageContext'
 import { STRINGS } from '../i18n/translations'
@@ -6,7 +6,7 @@ import { CATEGORIES } from '../data/categories'
 import { buildSolution } from '../engine/solverEngine'
 import { CategoryCard, SolutionCard } from '../components/ui'
 import { Icon } from '../components/icons'
-import { TabSwitcher, useToast } from '../components/PremiumUI'
+import { useToast } from '../components/PremiumUI'
 import { addFeedback } from '../lib/store'
 
 function load(key, fallback) {
@@ -37,12 +37,6 @@ export default function Dashboard() {
     const c = params.get('cat')
     if (c) setActiveCat(c)
   }, [params])
-
-  const catOptions = useMemo(() => CATEGORIES.map((c) => ({
-    value: c.id,
-    label: (c.short && c.short[lang]) || c.title[lang] || c.title.en,
-    icon: c.icon,
-  })), [lang])
 
   const catById = (id) => CATEGORIES.find((x) => x.id === id)
 
@@ -77,10 +71,6 @@ export default function Dashboard() {
         <h2 className="with-icon" style={{ margin: 0 }}><Icon name="sparkles" size={24} /> {t.welcome}</h2>
         <p className="muted">{t.dash_sub}</p>
         <div className="search-row">
-          <TabSwitcher className="cat-tabs"
-            label={lang === 'mr' ? 'समस्या प्रकार निवडा' : 'Pick a problem type'}
-            value={activeCat} onChange={openCat}
-            options={catOptions} />
           <button className="btn primary" onClick={askAI}><Icon name="chat" size={16} /> {t.ask_ai}</button>
         </div>
       </div>
