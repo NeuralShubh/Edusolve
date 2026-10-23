@@ -220,6 +220,7 @@ h2.with-icon, h3.with-icon, h4.with-icon { display: flex; }
 /* ---------- Premium SearchSelect (no system popup) ---------- */
 
 /* ---------- Tab switchers (no dropdown, no popup) ---------- */
+.ss-label { display: block; font-size: 12.5px; font-weight: 800; color: var(--muted); margin-bottom: 7px; letter-spacing: 0.02em; }
 .tab-switch { min-width: 0; position: relative; }
 .tabs { display: flex; gap: 8px; overflow-x: auto; scroll-snap-type: x proximity; padding: 2px 2px 6px; margin: -2px -2px -6px; scrollbar-width: none; }
 .tabs::-webkit-scrollbar { display: none; }
@@ -234,7 +235,7 @@ h2.with-icon, h3.with-icon, h4.with-icon { display: flex; }
 
 /* ---------- Compact segmented switcher ---------- */
 .seg-switch { min-width: 0; }
-.seg-ctl { display: inline-flex; flex-wrap: wrap; gap: 3px; background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 3px; box-shadow: inset 0 1px 2px rgba(16, 20, 40, 0.04); }
+.seg-ctl { display: inline-flex; flex-wrap: wrap; gap: 3px; max-width: 100%; background: var(--paper); border: 1px solid var(--line); border-radius: 12px; padding: 3px; box-shadow: inset 0 1px 2px rgba(16, 20, 40, 0.04); }
 .seg-ctl button { display: inline-flex; align-items: center; gap: 6px; border: 0; background: transparent; border-radius: 9px; padding: 9px 13px; min-height: 38px; font-size: 12.5px; font-weight: 700; color: var(--muted); cursor: pointer; font-family: inherit; transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease; }
 .seg-ctl button .icon { flex: none; }
 .seg-ctl button:hover { color: var(--accent-deep); background: rgba(109, 40, 217, 0.07); }
@@ -250,9 +251,24 @@ h2.with-icon, h3.with-icon, h4.with-icon { display: flex; }
 .file-chip:hover { border-color: var(--accent); color: var(--accent-deep); }
 .file-chip:active { transform: scale(0.98); }
 .file-chip input[type="file"] { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; }
-.field { min-width: 0; }
-.ss-row { align-items: flex-end; }
-.ss-row > .seg-switch, .ss-row > .field { flex: 1 1 220px; }
+.field { min-width: 0; display: flex; flex-direction: column; gap: 7px; }
+.field > .ss-label { margin-bottom: 0; }
+.field > .file-chip { align-self: flex-start; }
+.field > input[type="number"] { width: 100%; max-width: 140px; border: 1.5px solid var(--line); border-radius: var(--radius-sm); padding: 12px 13px; font-size: 15px; font-family: inherit; min-height: 48px; background: var(--paper); color: var(--text); transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease; }
+.field > input[type="number"]:focus { outline: none; border-color: var(--accent); background: #fff; box-shadow: 0 0 0 4px rgba(109, 40, 217, 0.12); }
+.ss-row { align-items: flex-end; gap: 14px 18px; }
+.ss-row > .seg-switch { flex: 0 0 auto; }
+.ss-row > .field { flex: 1 1 200px; }
+.ss-row > .btn { flex: none; }
+
+/* ---------- Tool form rows (label above every control) ---------- */
+.tool-form { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px 22px; }
+.tool-form > .seg-switch { flex: 0 0 auto; }
+.tool-form > .field { flex: 0 1 190px; }
+.tool-form > .field:first-child { flex: 0 1 260px; }
+.tool-form > .btn { flex: none; margin-left: auto; }
+.tool-stack { display: flex; flex-direction: column; gap: 18px; align-items: flex-start; }
+.tool-stack > .field { width: 100%; max-width: 460px; }
 
 /* ---------- Left side menu (tablet + PC) ---------- */
 .side-eyebrow { display: block; font-size: 10.5px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); padding: 0 14px; margin-bottom: 7px; }

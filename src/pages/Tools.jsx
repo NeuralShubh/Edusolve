@@ -85,10 +85,11 @@ function FileChecker({ lang }) {
   }
   return (
     <div>
-      <div className="row ss-row">
+      <div className="tool-stack">
         <Segmented label={lang === 'mr' ? 'निवडा' : 'Preset'} value={preset} onChange={setPreset}
           options={Object.entries(presets).map(([k, v]) => ({ value: k, label: v.short, icon: 'box' }))} />
-        <div className="field"><span className="ss-label">{lang === 'mr' ? 'फाइल निवडा (अपलोड होत नाही)' : 'Choose a file (never uploaded)'}</span>
+        <div className="field">
+          <span className="ss-label">{lang === 'mr' ? 'फाइल निवडा (अपलोड होत नाही)' : 'Choose a file (never uploaded)'}</span>
           <label className="file-chip"><Icon name="upload" size={15} /> {file ? file.name : (lang === 'mr' ? 'फाइल निवडा' : 'Browse file')}
             <input type="file" onChange={(e) => setFile(e.target.files?.[0] || null)} /></label>
         </div>
@@ -142,13 +143,16 @@ function PhotoResizer({ lang }) {
   return (
     <div>
       <p className="muted small">{lang === 'mr' ? 'फोटो: पांढरी पार्श्वभूमी, दिवसाचा प्रकाश. सही: कोऱ्या कागदावर काळा पेन. फाइल निवडा, आकार ठरवा, Resize दाबा, नंतर डाउनलोड करा. सर्व काही तुमच्या ब्राउझरमध्येच होते.' : 'Photo: white background, daylight. Signature: black pen on plain paper. Choose file, set size, press Resize, then Download. Everything happens in your browser.'}</p>
-      <div className="row ss-row">
-        <label className="file-chip"><Icon name="upload" size={15} /> {src ? (lang === 'mr' ? 'फोटो बदला' : 'Change photo') : (lang === 'mr' ? 'फोटो निवडा' : 'Choose photo')}
-          <input type="file" accept="image/*" onChange={(e) => onFile(e.target.files?.[0])} /></label>
+      <div className="tool-form">
+        <div className="field">
+          <span className="ss-label">{lang === 'mr' ? 'फोटो / सही' : 'Photo / signature'}</span>
+          <label className="file-chip"><Icon name="upload" size={15} /> {src ? (lang === 'mr' ? 'फोटो बदला' : 'Change photo') : (lang === 'mr' ? 'फोटो निवडा' : 'Choose photo')}
+            <input type="file" accept="image/*" onChange={(e) => onFile(e.target.files?.[0])} /></label>
+        </div>
         <div className="field"><span className="ss-label">Width px</span><input type="number" value={w} onChange={(e) => setW(+e.target.value || 200)} /></div>
         <div className="field"><span className="ss-label">Height px</span><input type="number" value={h} onChange={(e) => setH(+e.target.value || 230)} /></div>
         <Segmented label="Quality" value={String(quality)} onChange={(v) => setQuality(+v)}
-          options={[{ value: '0.6', label: '0.6 (smaller)', icon: 'photo' }, { value: '0.8', label: '0.8 (balanced)', icon: 'photo' }, { value: '0.92', label: '0.92 (clearer)', icon: 'photo' }]} />
+          options={[{ value: '0.6', label: '0.6 smaller', icon: 'photo' }, { value: '0.8', label: '0.8 balanced', icon: 'photo' }, { value: '0.92', label: '0.92 clearer', icon: 'photo' }]} />
         <button className="btn primary small" disabled={!src} onClick={resize}><Icon name="scissors" size={14} /> Resize</button>
       </div>
       {src && <div><p className="muted small">Original:</p><img className="preview-img" src={src} alt="original" /></div>}
