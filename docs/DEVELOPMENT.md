@@ -166,7 +166,7 @@ import Help from './pages/Help'
 <Route path="/help" element={<Help />} />
 ```
 
-Create `src/pages/Help.jsx` with a default-exported component. The `Layout` (sidebar, navbar, footer) wraps it automatically.
+Create `src/pages/Help.jsx` with a default-exported component. The `Layout` (sidebar, navbar) wraps it automatically.
 
 ### 4.6 Edit the in-app project report
 
@@ -290,7 +290,7 @@ There is **no automated test suite** (no Jest, Vitest, Playwright or Cypress in 
 | PWA | Build → serve → DevTools → Application → manifest + service worker registered |
 | Offline | Build → serve → go offline → reload → the app still loads |
 | Report | Open `#/report` → all 17 sections render, the TOC highlights on scroll, tables and viva Q&A appear |
-| Report print | Click Print → the navbar, sidebar, footer and tab bar are hidden and every viva answer is expanded |
+| Report print | Click Print → the navbar, sidebar and tab bar are hidden and every viva answer is expanded |
 | Report export | Click Download Markdown → a `.md` file downloads containing all 17 sections |
 | Report bilingual | Toggle the language → every heading, paragraph, list and table cell switches |
 | Responsive | Resize to 375 / 768 / 1280 px — tab bar, sidebar and grid all adapt |

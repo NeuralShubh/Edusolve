@@ -79,7 +79,7 @@ The project is deliberately **frontend-only**. There is no backend, no database 
 ┌──────────────────────── STUDENT APP (src/) ────────────────────────┐
 │  LanguageProvider (en | mr, persisted)                            │
 │      ↓                                                            │
-│  HashRouter → Layout (Sidebar · Navbar · main · Footer · TabBar)  │
+│  HashRouter → Layout (Sidebar · Navbar · main · TabBar)           │
 │      ↓                                                            │
 │  ┌──────────┬───────────┬──────────┬──────────┐                   │
 │  │  Home    │ Dashboard │  Solver  │  Tools   │                   │
@@ -261,7 +261,7 @@ The file checker reads the real `File.size` and file extension through the File 
 No. The File API is read locally, and the image processing happens on an on-page Canvas. There is no `fetch` to any server anywhere in `src/`.
 
 **Q6. How is the privacy requirement enforced rather than just promised?**
-Structurally: there is no server to send data to, no analytics script, no login, and no file-upload code path. The footer badge, the Solver sidebar and the admin Safety card state the rules in the UI itself.
+Structurally: there is no server to send data to, no analytics script, no login, and no file-upload code path. The Solver sidebar and the admin Safety card state the rules in the UI itself.
 
 **Q7. Why is the admin a separate application?**
 So the student bundle contains no admin code and no admin navigation, and so the admin interface can be deployed on a restricted host independently. Both apps share the same `node_modules`, the same `package.json` and the same data modules through relative imports.

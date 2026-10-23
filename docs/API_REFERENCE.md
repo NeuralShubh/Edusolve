@@ -179,9 +179,9 @@ type Feedback = {
 
 ### `STRINGS` — `{ en: Record<string,string>, mr: Record<string,string> }`
 
-60 keys per language. Full list:
+55 keys per language. Full list:
 
-`nav_home` · `nav_dashboard` · `nav_solver` · `nav_tools` · `nav_about` · `hero_badge` · `hero_title_a` · `hero_title_b` · `hero_desc` · `start_solving` · `explore_problems` · `demo_note` · `popular_title` · `popular_sub` · `view_all` · `how_title` · `how_sub` · `how_1_t` · `how_1_d` · `how_2_t` · `how_2_d` · `how_3_t` · `how_3_d` · `feat_title` · `feat_sub` · `feat_1_t` · `feat_1_d` · `feat_2_t` · `feat_2_d` · `feat_3_t` · `feat_3_d` · `feat_4_t` · `feat_4_d` · `footer_tag` · `footer_help` · `footer_privacy` · `footer_help_text` · `footer_privacy_text` · `search_ph` · `ask_ai` · `welcome` · `dash_sub` · `recent` · `saved` · `progress` · `empty_recent` · `empty_saved` · `solver_title` · `solver_sub` · `solver_ph` · `send` · `solved` · `not_solved` · `save` · `saved_label` · `tools_title` · `tools_sub` · `about_title` · `lang_label` · `clear`
+`nav_home` · `nav_dashboard` · `nav_solver` · `nav_tools` · `nav_about` · `hero_badge` · `hero_title_a` · `hero_title_b` · `hero_desc` · `start_solving` · `explore_problems` · `demo_note` · `popular_title` · `popular_sub` · `view_all` · `how_title` · `how_sub` · `how_1_t` · `how_1_d` · `how_2_t` · `how_2_d` · `how_3_t` · `how_3_d` · `feat_title` · `feat_sub` · `feat_1_t` · `feat_1_d` · `feat_2_t` · `feat_2_d` · `feat_3_t` · `feat_3_d` · `feat_4_t` · `feat_4_d` · `search_ph` · `ask_ai` · `welcome` · `dash_sub` · `recent` · `saved` · `progress` · `empty_recent` · `empty_saved` · `solver_title` · `solver_sub` · `solver_ph` · `send` · `solved` · `not_solved` · `save` · `saved_label` · `tools_title` · `tools_sub` · `about_title` · `lang_label` · `clear`
 
 ---
 
@@ -214,15 +214,12 @@ No props. Renders a home link: icon mark + "EduSolve **AI**".
 ### `<Navbar />`
 No props. Uses `useLang()` and `useNavigate()`. Contains the language toggle and the "Start Solving" CTA.
 
-### `<Footer />`
-No props. Four columns + a bottom bar with `new Date().getFullYear()`.
-
 ### `<Layout />`
 | Prop | Type | Notes |
 |---|---|---|
 | `children` | `ReactNode` | The routed page. |
 
-Calls `trackVisit()` once on mount. Renders `Sidebar`, `Navbar`, `<main className="main">`, `Footer`, `MobileTabBar`.
+Calls `trackVisit()` once on mount. Renders `Sidebar`, `Navbar`, `<main className="main">`, `MobileTabBar`.
 
 ### `<Sidebar />`
 No props. Desktop left rail. Rendered inside `Layout` but always in the DOM — CSS hides it below 961 px.

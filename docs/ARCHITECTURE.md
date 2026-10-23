@@ -54,7 +54,6 @@ main.jsx
 │              │    ├── Solver    (pages/Solver.jsx)
 │              │    ├── Tools     (pages/Tools.jsx)
 │              │    └── Report    (pages/Report.jsx)
- │              ├── Footer
  │              └── MobileTabBar
  └── serviceWorker.register('sw.js')   [production only]
 ```
@@ -79,9 +78,9 @@ const LanguageContext = createContext({ lang: 'en', setLang: () => {}, toggle: (
 
 ### 3.4 `src/i18n/translations.js`
 - A single exported object `STRINGS` with exactly two branches, `en` and `mr`.
-- 60 keys per language, e.g. `nav_home`, `hero_title_a`, `feat_3_t`, `footer_privacy_text`.
+- 60 keys per language, e.g. `nav_home`, `hero_title_a`, `feat_3_t`, `dash_sub`.
 - Consumed as `const t = STRINGS[lang]`.
-- Several components still inline `lang === 'mr' ? '…' : '…'` for strings that are more readable as inline conditionals (category list headers, admin labels, footer micro-copy).
+- Several components still inline `lang === 'mr' ? '…' : '…'` for strings that are more readable as inline conditionals (category list headers, admin labels).
 
 ### 3.5 `src/components/icons.jsx`
 - 43 icon definitions in a `PATHS` object, each a JSX fragment of `<path>` / `<circle>` / `<rect>` elements.
@@ -96,7 +95,6 @@ Icon inventory: `globe, server, lock, key, edit, upload, box, photo, card, check
 | `Logo` | Home link with the graduation-cap mark and the "EduSolve **AI**" wordmark. |
 | `Navbar` | Top bar: logo, 4 nav links, language toggle, "Start Solving" CTA, hamburger for mobile. |
 | `MobileMenu` | Slide-down menu for phones (private component in the same file). |
-| `Footer` | 4 columns: brand + safety badge, menu links, help text, privacy text, bottom bar with the current year. |
 | `Layout` | The app shell. Calls `trackVisit()` once on mount. |
 | `Sidebar` | Fixed left rail from 961 px; logo, 4 links, "Quick → Start Solving" CTA, language toggle. |
 | `MobileTabBar` | Bottom tab bar for phones; the Solver tab is a raised centre FAB. |
@@ -248,7 +246,7 @@ The **graphical** analytics report. It renders no prose sections — every fact 
 ### 3.12 `src/index.css`
 - One `@import` for Google Fonts (Sora, Manrope, Noto Sans Devanagari).
 - `:root` design tokens (see the README design-system table).
-- Layout: `.app-shell` (sidebar + content grid), `.navbar`, `.sidebar`, `.tabbar`, `.footer`.
+- Layout: `.app-shell` (sidebar + content grid), `.navbar`, `.sidebar`, `.tabbar`.
 - Components: `.btn` (+`.primary` `.secondary` `.small` `.block` `.ghost`), `.card`, `.cat-card`, `.sol-grid`, `.solution`, `.chat`, `.msg` (+`.user` `.bot`), `.opt-row`, the tab-switcher strip and the segmented pill styles, `.toast`, `.progress`, `.check`, `.pill`, `.chip`, `.file-chip`, `.result` (+`.ok` `.bad`), `.kpi` (admin), `.bar` / `.bar-col` / `.chart` (admin), `.ring` (admin donut).
 - Report section: `.report-hero`, `.report-layout`, `.report-toc`, `.toc-link`, `.rep-sec`, `.rep-h2`, `.rep-h3`, `.rep-p`, `.rep-ul`, `.rep-ol`, `.rep-note`, `.rep-code`, `.rep-table`, `.rep-qa`, `.rep-q`, `.rep-end`, `.report-promo`.
 - Graphical report: `.an-hero`, `.an-controls`, `.an-seg`, `.an-headline`, `.an-kpi-grid`, `.an-kpi`, `.an-grid`, `.an-panel`, `.an-donut-wrap`, `.an-gauge-wrap`, `.an-mini-stats`, `.an-source-grid`, `.an-insight`, `.an-td-cat`, `.an-rate-cell`.

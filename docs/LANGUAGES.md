@@ -65,7 +65,7 @@ The application ships in **two** interface languages, both complete (no half-tra
 
 | Content | File | Coverage |
 |---|---|---|
-| UI chrome (nav, hero, buttons, footer, headings) | `src/i18n/translations.js` → `STRINGS.en` / `STRINGS.mr` | 60 keys × 2 languages |
+| UI chrome (nav, hero, buttons, headings) | `src/i18n/translations.js` → `STRINGS.en` / `STRINGS.mr` | 60 keys × 2 languages |
 | Category titles & descriptions | `src/data/categories.js` → `title: {en, mr}`, `desc: {en, mr}` | 12 × 2 × 2 |
 | Solution content (causes, steps, prevention, alternative) | `src/data/categories.js` → `SOLUTIONS[*]` | 12 categories × 2 languages |
 | Follow-up questions | `src/data/categories.js` → `followups[].q.{en,mr}` | 24 questions × 2 languages |

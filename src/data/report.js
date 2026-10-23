@@ -273,7 +273,7 @@ export const REPORT_SECTIONS = [
         text: `┌──────────────────────── STUDENT APP (src/) ────────────────────────┐
 │  LanguageProvider (en | mr, persisted to localStorage)                 │
 │      ↓                                                                 │
-│  HashRouter → Layout (Sidebar · Navbar · main · Footer · MobileTabBar) │
+│  HashRouter → Layout (Sidebar · Navbar · main · MobileTabBar)          │
 │      ↓                                                                 │
 │  ┌──────────┬───────────┬──────────┬──────────┐                        │
 │  │  Home    │ Dashboard │  Solver  │  Tools   │                        │
@@ -434,7 +434,7 @@ export const REPORT_SECTIONS = [
           ['src/i18n/translations.js', 'STRINGS.en and STRINGS.mr — 60 UI keys per language', 'Plain object, no i18n library'],
           ['src/context/LanguageContext.jsx', 'Language state, persistence and <html lang> synchronisation', 'useLang() hook, try/catch localStorage access'],
           ['src/lib/store.js', 'The only module that owns cross-cutting localStorage data', 'Feedback, visits, featured flags, admin session, clearAllAppData'],
-          ['src/components/ui.jsx', 'Layout shell and the shared SolutionCard / CategoryCard widgets', 'Layout, Navbar, Sidebar, Footer, MobileTabBar, Logo'],
+          ['src/components/ui.jsx', 'Layout shell and the shared SolutionCard / CategoryCard widgets', 'Layout, Navbar, Sidebar, MobileTabBar, Logo'],
           ['src/components/PremiumUI.jsx', 'Searchable combobox with full keyboard support, plus toasts', 'SearchSelect with ↑ ↓ Enter Esc, Toast, useToast'],
           ['src/components/icons.jsx', 'The 43-icon inline SVG set and the <Icon> renderer', 'currentColor stroke icons, graceful fallback to bulb'],
           ['src/pages/*', 'The five student screens — Home, Dashboard, Solver, Tools, Report', 'Route-driven, each self-contained'],
@@ -557,7 +557,7 @@ export const REPORT_SECTIONS = [
       {
         t: 'ul',
         en: [
-          'Never asks for a password, OTP, CVV or bank PIN — stated in the footer badge, the Solver sidebar and the admin Safety card.',
+          'Never asks for a password, OTP, CVV or bank PIN — stated in the Solver sidebar and the admin Safety card.',
           'Files are never uploaded. The File API is read locally and the resizer works entirely on a Canvas.',
           'No backend, no database, no analytics server, no third-party scripts.',
           'No login is required for students.',
@@ -795,7 +795,7 @@ export const REPORT_SECTIONS = [
               mr: 'गोपनीयता आवश्यकता केवळ प्रतिज्ञा न करता कशी लागू केली जाते?',
             },
             a: {
-              en: 'Structurally. There is no server to send data to, no analytics script, no login, and no file-upload code path. The footer badge, the Solver sidebar and the admin Safety card state the rules in the interface itself.',
+              en: 'Structurally. There is no server to send data to, no analytics script, no login, and no file-upload code path. The Solver sidebar and the admin Safety card state the rules in the interface itself.',
               mr: 'रचनेमुळेच. डेटा पाठवण्यासाठी कोणताही सर्व्हर नाही, कोणतीही ॲनालिटिक्स स्क्रिप्ट नाही, कोणतेही लॉगिन नाही आणि फाइल-अपलोड कोड मार्ग नाही. फूटर बॅज, सोल्व्हर साइडबार आणि प्रशासन सुरक्षा कार्डमध्ये नियम इंटरफेसमध्येच सांगितलेले आहेत.',
             },
           },

@@ -62,49 +62,6 @@ function MobileMenu({ t, toggle, lang }) {
   )
 }
 
-export function Footer() {
-  const { lang } = useLang()
-  const t = STRINGS[lang]
-  const nav = useNavigate()
-  const links = [
-    { to: '/', label: t.nav_home, icon: 'home' },
-    { to: '/dashboard', label: t.nav_dashboard, icon: 'grid' },
-    { to: '/solver', label: t.nav_solver, icon: 'chat' },
-    { to: '/tools', label: t.nav_tools, icon: 'wrench' },
-    { to: '/report', label: t.nav_report, icon: 'bookmark' },
-  ]
-  return (
-    <footer className="footer">
-      <div className="footer-inner">
-        <div className="footer-brand">
-          <div className="footer-logo">EduSolve <b>AI</b></div>
-          <p className="muted">{t.footer_tag}</p>
-          <span className="footer-badge"><Icon name="shield" size={14} /> {lang === 'mr' ? 'पासवर्ड, OTP किंवा PIN कधीही मागत नाही.' : 'Never asks for passwords, OTPs or PINs.'}</span>
-        </div>
-        <div className="footer-col">
-          <h4 className="with-icon"><Icon name="grid" size={16} /> {lang === 'mr' ? 'मेनू' : 'Menu'}</h4>
-          <nav className="footer-links">
-            {links.map((l) => (
-              <button key={l.to} className="footer-link" onClick={() => nav(l.to)}>
-                <Icon name={l.icon} size={15} /> {l.label}
-              </button>
-            ))}
-          </nav>
-        </div>
-        <div className="footer-col">
-          <h4 className="with-icon"><Icon name="help" size={17} /> {t.footer_help}</h4>
-          <p className="muted small">{t.footer_help_text}</p>
-        </div>
-        <div className="footer-col">
-          <h4 className="with-icon"><Icon name="shield" size={17} /> {t.footer_privacy}</h4>
-          <p className="muted small">{t.footer_privacy_text}</p>
-        </div>
-      </div>
-      <div className="footer-bottom">EduSolve AI • Step-by-Step Student Guidance • {new Date().getFullYear()}</div>
-    </footer>
-  )
-}
-
 import { useEffect } from 'react'
 import { trackVisit } from '../lib/store'
 
@@ -116,7 +73,6 @@ export function Layout({ children }) {
       <div className="content-col">
         <Navbar />
         <main className="main">{children}</main>
-        <Footer />
       </div>
       <MobileTabBar />
     </div>

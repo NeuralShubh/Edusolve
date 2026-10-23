@@ -168,7 +168,7 @@ The page opens with a **slim toolbar** (Print, the two downloads and the two swi
 |---|---|
 | **Data source** | `All data` (project dataset + this browser) · `Project dataset` (the 30-day sample) · `This device` (only what you solved here) |
 | **Time window** | Last 7, 14 or 30 days — every chart, card and table re-computes instantly |
-| **Print / Save as PDF** | A dedicated `@media print` stylesheet strips the navbar, sidebar, footer and tab bar and lays the charts out on A4 |
+| **Print / Save as PDF** | A dedicated `@media print` stylesheet strips the navbar, sidebar and tab bar and lays the charts out on A4 |
 | **Download Excel (.xlsx)** | Downloads the current report as a real Excel workbook with 5 sheets — `Summary`, `Daily`, `By Problem Type`, `By Source`, `Weekly`. Numbers stay numeric so they can be summed, columns are sized, the header row is frozen and every label is in the language you are viewing. |
 | **Full document (.md)** | Downloads the long written project document that lives in `docs/` |
 
@@ -283,7 +283,7 @@ Taniya/                          ← repository root (project folder name)
 │   ├── index.css                Student design system + all component styles
 │   ├── components/
 │   │   ├── icons.jsx            46 inline SVG icons + <Icon> component
-│   │   ├── ui.jsx               Layout, Navbar, Sidebar, Footer, MobileMenu,
+│   │   ├── ui.jsx               Layout, Navbar, Sidebar, MobileMenu,
 │   │   │                        MobileTabBar, Logo, CategoryCard, SolutionCard
 │   │   ├── PremiumUI.jsx        TabSwitcher + Segmented (tab / pill switchers), Toast, useToast
 │   │   └── Charts.jsx           Hand-written SVG charts: Donut, Column, Area,
@@ -355,7 +355,7 @@ Taniya/                          ← repository root (project folder name)
 ```
 
 - **Routing**: `HashRouter` (`#/dashboard`) so the built `dist/` works on any static host or sub-path — GitHub Pages (`/Edusolve/`), Vercel, Netlify — with no server rewrite rules needed.
-- **Layout**: `Layout` renders `Sidebar` (desktop) + `Navbar` + `<main>` + `Footer` + `MobileTabBar` (mobile) around every route.
+- **Layout**: `Layout` renders `Sidebar` (desktop) + `Navbar` + `<main>` + `MobileTabBar` (mobile) around every route.
 - **State**: React `useState`/`useMemo`/`useRef` only. No Redux, no Context besides `LanguageContext`.
 - **Data flow for a solution**: `Solver` → `startSession(text)` → `detectCategory()` → 2 × `answerOption()` → `finishSolution()` → `buildSolution(categoryId, lang)` → `<SolutionCard>`.
 - **Deep links**: Dashboard → Solver via `?q=<encoded title>`; Solver reads `?q=` on mount and auto-runs it.
@@ -523,7 +523,7 @@ Shared tokens live at the top of `src/index.css` and `admin-app/src/admin.css`.
 
 These are enforced in the UI, not just described:
 
-1. **Never asks for passwords, OTPs, CVVs or bank PINs.** Stated in the footer badge, the Solver sidebar, and the admin Safety card.
+1. **Never asks for passwords, OTPs, CVVs or bank PINs.** Stated in the Solver sidebar and the admin Safety card.
 2. **Files are never uploaded.** The File API is read locally; the resizer works entirely on a `<canvas>`.
 3. **No backend, no database, no analytics, no tracking server.** `localStorage` only.
 4. **No login for students.** The student site requires no account.
