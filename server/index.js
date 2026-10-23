@@ -75,7 +75,7 @@ const server = http.createServer(async (req, res) => {
   const path = url.pathname
 
   try {
-    if (req.method === 'GET' && path === '/api/health') {
+    if (req.method === 'GET' && (path === '/api/health' || path === '/')) {
       return send(res, 200, { ok: true, service: 'edusolve-api', time: new Date().toISOString() })
     }
 
