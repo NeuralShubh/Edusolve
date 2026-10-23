@@ -1,11 +1,11 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { CATEGORIES } from '../../src/data/categories'
 import { Icon } from '../../src/components/icons'
 import {
   isAdmin, adminLogin, adminLogout, adminName,
   getFeedback, clearFeedback, addFeedback,
   getFeatured, toggleFeatured,
-  getVisits, last7Days, relativeTime, clearAllAppData,
+  getVisits, last7Days, relativeTime, clearAllAppData, pullFromServer,
 } from '../../src/lib/store'
 
 function seedOnce() {
@@ -18,7 +18,7 @@ function seedOnce() {
     { title: 'Document Upload Problems', verdict: 'solved', source: 'solver', at: now - 30 * H },
     { title: 'Form Instructions and Information Entry', verdict: 'solved', source: 'dashboard', at: now - 44 * H },
   ]
-  demo.forEach((d) => addFeedback(d))
+  demo.forEach((d) => addFeedback(d, { localOnly: true }))
 }
 
 function Brand({ compact }) {
@@ -287,7 +287,7 @@ function SettingsAdmin({ lang }) {
       <div className="panel flat">
         <span className="set-ico"><Icon name="info" size={18} /></span>
         <h3>{lang === 'mr' ? 'बिल्ड माहिती' : 'Build info'}</h3>
-        <p className="muted small">EduSolve Admin, separate React + Vite app. No backend, no database, no real AI. Student site lives at the main URL.</p>
+        <p className="muted small">EduSolve Admin, separate React + Vite app. Feedback, visits and flags sync to the Supabase database through the Render API. Student site lives at the main URL.</p>
       </div>
       <div className="panel flat">
         <span className="set-ico"><Icon name="alert" size={18} /></span>
@@ -309,6 +309,14 @@ export default function App() {
   const [lang, setLang] = useState(() => localStorage.getItem('edusolve_admin_lang') || 'en')
   const setLanguage = (l) => { setLang(l); localStorage.setItem('edusolve_admin_lang', l) }
   const [tab, setTab] = useState('overview')
+  const [, setTick] = useState(0)
+
+  useEffect(() => {
+    const bump = () => setTick((t) => t + 1)
+    pullFromServer().then(bump)
+    window.addEventListener('edusolve:sync', bump)
+    return () => window.removeEventListener('edusolve:sync', bump)
+  }, [])
 
   if (!isAdmin()) return <Login lang={lang} />
   seedOnce()
@@ -357,7 +365,7 @@ export default function App() {
             <div>
               <span className="eyebrow"><Icon name="sparkles" size={12} /> EduSolve {lang === 'mr' ? 'व्यवस्थापन' : 'console'}</span>
               <h1>{title[lang] || title.en}</h1>
-              <p className="muted">{lang === 'mr' ? 'सर्व माहिती फक्त या ब्राउझरमध्ये. कोणताही सर्व्हर नाही.' : 'Everything lives in this browser only. No server anywhere.'}</p>
+              <p className="muted">{lang === 'mr' ? 'फीडबॅक, भेटी आणि फ्लॅग Supabase डेटाबेसमध्ये सिंक होतात.' : 'Feedback, visits and flags sync to the Supabase database.'}</p>
             </div>
             <div className="head-chips">
               <span className="chip"><Icon name="history" size={13} /> {new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
