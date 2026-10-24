@@ -40,7 +40,6 @@ const LABELS = {
   from: { en: 'From', mr: 'पासून' },
   to: { en: 'To', mr: 'पर्यंत' },
   scopeAll: { en: 'All data', mr: 'सर्व माहिती' },
-  scopeProject: { en: 'Project dataset', mr: 'प्रकल्प माहिती' },
   scopeDevice: { en: 'This device', mr: 'या डिव्हाइसवर' },
 }
 
@@ -51,12 +50,8 @@ const TEMPLATES = {
   bestDay: { en: '{label} ({weekday}) — {n} solved', mr: '{label} ({weekday}) — {n} सोडवलेल्या' },
   busiestDay: { en: '{label} ({weekday}) — {n} reported', mr: '{label} ({weekday}) — {n} नोंदी' },
   noteAll: {
-    en: 'Data source: the 30-day project dataset ({p} rows) plus the problems solved in this browser ({d} rows).',
-    mr: 'माहितीचा स्रोत: 30 दिवसांची प्रकल्प माहिती ({p} नोंदी) आणि या ब्राउझरमध्ये सोडवलेल्या समस्या ({d} नोंदी).',
-  },
-  noteProject: {
-    en: 'Data source: the 30-day project dataset collected during testing ({p} rows).',
-    mr: 'माहितीचा स्रोत: चाचणीच्या दरम्यान गोळा केलेली 30 दिवसांची प्रकल्प माहिती ({p} नोंदी).',
+    en: 'Data source: {p} real problem reports recorded in this window, including {d} recorded in this browser.',
+    mr: 'माहितीचा स्रोत: या कालावधीतील {p} खऱ्या समस्या नोंदी, या ब्राउझरमधील {d} नोंदींसह.',
   },
   noteDevice: {
     en: 'Data source: only the problems recorded in this browser ({d} rows).',
@@ -144,14 +139,13 @@ export function reportFileBaseName(lang = 'en') {
 /* Sheet builders                                                      */
 /* ------------------------------------------------------------------ */
 function scopeLabel(scope, L) {
-  if (scope === 'project') return L.scopeProject
   if (scope === 'device') return L.scopeDevice
   return L.scopeAll
 }
 
 function scopeNote(a, lang) {
-  const key = a.scope === 'project' ? 'noteProject' : a.scope === 'device' ? 'noteDevice' : 'noteAll'
-  return fill(TEMPLATES[key][isMr(lang) ? 'mr' : 'en'], { p: num(a.projectCount), d: num(a.deviceCount) })
+  const key = a.scope === 'device' ? 'noteDevice' : 'noteAll'
+  return fill(TEMPLATES[key][isMr(lang) ? 'mr' : 'en'], { p: num(a.totalRows), d: num(a.deviceCount) })
 }
 
 function dayHighlight(day, templateKey, lang, field) {

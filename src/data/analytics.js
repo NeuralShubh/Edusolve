@@ -1,16 +1,15 @@
 // Analytics engine for the Project Report.
-// Builds a deterministic 30-day problem dataset, merges it with the live data
-// stored in this browser, and returns everything the report charts need.
-// No backend, no network — everything is computed in the browser.
+// Aggregates the real problem reports stored in this browser (synced from the
+// EduSolve API) into everything the report charts need.
+// No generated sample data — every number comes from an actual report.
 
 import { CATEGORIES } from './categories'
 
-export const REPORT_DAYS = 30
-export const RANGE_OPTIONS = [7, 14, 30]
+export const REPORT_DAYS = 12
+export const RANGE_OPTIONS = [7, 12, 30]
 
 export const SCOPES = [
   { id: 'all', en: 'All data', mr: 'सर्व माहिती' },
-  { id: 'project', en: 'Project dataset', mr: 'प्रकल्प माहिती' },
   { id: 'device', en: 'This device', mr: 'या डिव्हाइसवर' },
 ]
 
@@ -18,24 +17,6 @@ export const SOURCES = [
   { id: 'solver', en: 'AI Problem Solver', mr: 'AI समस्या सोडवणूक' },
   { id: 'dashboard', en: 'Dashboard', mr: 'डॅशबोर्ड' },
 ]
-
-/* ------------------------------------------------------------------ */
-/* How often each problem type occurs, and how often it gets solved.  */
-/* ------------------------------------------------------------------ */
-export const CATEGORY_PROFILE = {
-  otp: { weight: 30, solve: 0.83 },
-  payment: { weight: 27, solve: 0.44 },
-  'doc-upload': { weight: 23, solve: 0.66 },
-  'file-size': { weight: 19, solve: 0.89 },
-  submission: { weight: 17, solve: 0.51 },
-  'form-entry': { weight: 15, solve: 0.76 },
-  photo: { weight: 13, solve: 0.85 },
-  internet: { weight: 12, solve: 0.71 },
-  server: { weight: 11, solve: 0.55 },
-  password: { weight: 9, solve: 0.88 },
-  reload: { weight: 8, solve: 0.62 },
-  other: { weight: 7, solve: 0.66 },
-}
 
 export const CHART_COLORS = {
   solved: '#16a34a',
@@ -47,17 +28,6 @@ export const CHART_COLORS = {
 /* ------------------------------------------------------------------ */
 /* Helpers                                                             */
 /* ------------------------------------------------------------------ */
-function mulberry32(seed) {
-  let a = seed
-  return function () {
-    a |= 0
-    a = (a + 0x6d2b79f5) | 0
-    let t = Math.imul(a ^ (a >>> 15), 1 | a)
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
-  }
-}
-
 export function dayKey(d) {
   const dt = d instanceof Date ? d : new Date(d)
   const y = dt.getFullYear()
@@ -102,78 +72,47 @@ export function matchCategory(text) {
 }
 
 /* ------------------------------------------------------------------ */
-/* Deterministic 30-day dataset                                        */
+/* Real recorded data                                                  */
 /* ------------------------------------------------------------------ */
-const PROFILE_ENTRIES = Object.entries(CATEGORY_PROFILE)
-const TOTAL_WEIGHT = PROFILE_ENTRIES.reduce((s, [, p]) => s + p.weight, 0)
+const FB_KEY = 'edusolve_feedback'
+const FB_LOCAL_KEY = 'edusolve_feedback_local'
+const VISITS_KEY = 'edusolve_visits_daily'
+const RECENT_KEY = 'edusolve_recent'
+const CHECKS_KEY = 'edusolve_checks'
 
-function pickCategory(rand) {
-  let r = rand() * TOTAL_WEIGHT
-  for (const [id, p] of PROFILE_ENTRIES) {
-    r -= p.weight
-    if (r <= 0) return id
+function readJSON(key, fallback) {
+  try {
+    const v = JSON.parse(localStorage.getItem(key))
+    return v ?? fallback
+  } catch {
+    return fallback
   }
-  return 'other'
 }
 
-/** Deterministic sample dataset — the same every time, so the report is stable. */
-export function buildProjectDataset(now = Date.now(), days = REPORT_DAYS) {
-  const rand = mulberry32(20251022)
-  const rows = []
-  const baseDate = new Date(now)
-  baseDate.setHours(0, 0, 0, 0)
-  const base = baseDate.getTime()
-
-  for (let i = days - 1; i >= 0; i--) {
-    const dayStart = base - i * 86400000
-    const dow = new Date(dayStart).getDay()
-    const weekend = dow === 0 ? 0.5 : dow === 6 ? 0.62 : 1
-    const growth = 1 + ((days - i) / days) * 0.5
-    const noise = 0.82 + rand() * 0.36
-    const count = Math.max(5, Math.round(34 * weekend * growth * noise))
-
-    for (let k = 0; k < count; k++) {
-      const cat = pickCategory(rand)
-      const solved = rand() < CATEGORY_PROFILE[cat].solve
-      const hour = 8 + Math.floor(rand() * 16)
-      const minute = Math.floor(rand() * 60)
-      rows.push({
-        at: dayStart + hour * 3600000 + minute * 60000,
-        cat,
-        verdict: solved ? 'solved' : 'unsolved',
-        source: rand() < 0.63 ? 'solver' : 'dashboard',
-      })
-    }
-  }
-  return rows
-}
-
-/* ------------------------------------------------------------------ */
-/* Live device data                                                    */
-/* ------------------------------------------------------------------ */
-export function readDeviceData() {
-  const read = (key, fallback) => {
-    try {
-      const v = JSON.parse(localStorage.getItem(key))
-      return v ?? fallback
-    } catch {
-      return fallback
-    }
-  }
-  const feedback = read('edusolve_feedback', [])
-  const visits = read('edusolve_visits_daily', {})
-  const recent = read('edusolve_recent', [])
-  const checks = read('edusolve_checks', [])
-
-  const rows = (Array.isArray(feedback) ? feedback : []).map((f) => ({
+function toRows(list) {
+  return (Array.isArray(list) ? list : []).map((f) => ({
     at: f.at || Date.now(),
     cat: matchCategory(f.title),
     verdict: f.verdict === 'solved' ? 'solved' : 'unsolved',
     source: f.source === 'dashboard' ? 'dashboard' : 'solver',
   }))
+}
+
+/**
+ * Real data held in this browser.
+ *  - allRows:   every report known here (API sync + this browser's own entries)
+ *  - localRows: only the reports recorded in this browser
+ */
+export function readDeviceData() {
+  const allRows = toRows(readJSON(FB_KEY, []))
+  const localRows = toRows(readJSON(FB_LOCAL_KEY, []))
+  const visits = readJSON(VISITS_KEY, {})
+  const recent = readJSON(RECENT_KEY, [])
+  const checks = readJSON(CHECKS_KEY, [])
 
   return {
-    rows,
+    allRows,
+    localRows,
     visits: visits && typeof visits === 'object' ? visits : {},
     opened: (Array.isArray(recent) ? recent : []).map((r) => r.id).filter(Boolean),
     checks: Array.isArray(checks) ? checks : [],
@@ -185,9 +124,7 @@ export function readDeviceData() {
 /* ------------------------------------------------------------------ */
 export function buildAnalytics({ scope = 'all', days = REPORT_DAYS, now = Date.now(), device } = {}) {
   const dev = device || readDeviceData()
-  const projectRows = scope === 'device' ? [] : buildProjectDataset(now, REPORT_DAYS)
-  const deviceRows = scope === 'project' ? [] : dev.rows
-  const allRows = [...projectRows, ...deviceRows]
+  const allRows = scope === 'device' ? dev.localRows : dev.allRows
 
   const from = new Date(now)
   from.setHours(0, 0, 0, 0)
@@ -327,8 +264,8 @@ export function buildAnalytics({ scope = 'all', days = REPORT_DAYS, now = Date.n
     sources,
     weekly,
     cumulative,
-    hasDeviceData: dev.rows.length > 0,
-    deviceCount: dev.rows.length,
-    projectCount: projectRows.length,
+    hasData: allRows.length > 0,
+    totalRows: allRows.length,
+    deviceCount: dev.localRows.length,
   }
 }

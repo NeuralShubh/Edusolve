@@ -174,12 +174,12 @@ The on-screen report is **graphical**. Two files drive it:
 
 | File | What lives there |
 |---|---|
-| `src/data/analytics.js` | The dataset and every aggregate — `buildAnalytics({ scope, days })` returns totals, daily buckets, per-category, per-source, weekly and cumulative series |
+| `src/data/analytics.js` | Every aggregate over the **real** recorded data — `buildAnalytics({ scope, days })` returns totals, daily buckets, per-category, per-source, weekly and cumulative series |
 | `src/components/Charts.jsx` | The SVG chart primitives — `DonutChart`, `ColumnChart`, `AreaChart`, `BarList`, `SplitBar`, `Sparkline`, `Gauge`, `Legend` |
-| `src/pages/Report.jsx` | The page itself — KPI cards, panels, tables, controls and the bilingual labels |
+| `src/pages/Report.jsx` | The page itself — syncs real data from the API, then renders KPI cards, panels, tables, controls and the bilingual labels |
 | `src/data/report.js` | The long written document (`REPORT_SECTIONS`), still exportable as Markdown |
 
-**To change the numbers**, edit `CATEGORY_PROFILE` in `src/data/analytics.js` — `weight` is how often a problem type comes up, `solve` is the share of those that get solved. The dataset is seeded (`mulberry32(20251022)`), so the numbers are identical on every device and every reload.
+**The numbers are real.** Reports come from the EduSolve API (Supabase `feedback` + `visits_daily` tables) and are cached in `localStorage` (`edusolve_feedback`, merged with this browser's own `edusolve_feedback_local` ledger). The report window defaults to the last **12 days**; the server accepts `?days=N` on `GET /api/feedback` and `GET /api/visits` to limit what it sends, and `buildAnalytics()` slices the cached data client-side for the 7 / 12 / 30-day toggles. There is no seeded sample dataset anymore.
 
 **To add a chart**, drop a new component in `src/components/Charts.jsx` (or reuse an existing one) and add a `<Panel>` to `src/pages/Report.jsx`. Every chart measures its own container with `useWidth()`, so no fixed pixel width is needed.
 

@@ -146,9 +146,9 @@ Pick a tool from the **tab switcher** at the top of the page — six tabs, nothi
 
 ### 4.3 The Project Report section (`/report`)
 
-A **graphical** analytics report built into the app. Every number on the page is a chart, a KPI card or a table — no walls of text.
+A **graphical** analytics report built into the app, driven by **real recorded data** — every number on the page is a chart, a KPI card or a table built from actual problem reports, never from a sample dataset.
 
-The page opens with a **slim toolbar** (Print, the two downloads and the two switches) — there is no long text header, so the report starts straight with the numbers.
+The page opens with a **slim toolbar** (Refresh, Print, the two downloads and the two switches) — there is no long text header, so the report starts straight with the numbers. On open it syncs live data from the EduSolve API and shows a colour-coded sync status (loading / live / offline).
 
 | Chart / card | What it shows |
 |---|---|
@@ -166,8 +166,9 @@ The page opens with a **slim toolbar** (Print, the two downloads and the two swi
 
 | Control | What it does |
 |---|---|
-| **Data source** | `All data` (project dataset + this browser) · `Project dataset` (the 30-day sample) · `This device` (only what you solved here) |
-| **Time window** | Last 7, 14 or 30 days — every chart, card and table re-computes instantly |
+| **Data source** | `All data` (everything synced from the server + this browser) · `This device` (only what you recorded here) |
+| **Time window** | Last 7, **12** or 30 days — every chart, card and table re-computes instantly (12 is the default) |
+| **Refresh data** | Re-pulls the latest reports and visits from the EduSolve API |
 | **Print / Save as PDF** | A dedicated `@media print` stylesheet strips the navbar, sidebar and tab bar and lays the charts out on A4 |
 | **Download Excel (.xlsx)** | Downloads the current report as a real Excel workbook with 5 sheets — `Summary`, `Daily`, `By Problem Type`, `By Source`, `Weekly`. Numbers stay numeric so they can be summed, columns are sized, the header row is frozen and every label is in the language you are viewing. |
 | **Full document (.md)** | Downloads the long written project document that lives in `docs/` |
@@ -176,7 +177,7 @@ The long-form written document is still available as a one-click Markdown export
 
 The Excel workbook is produced by `src/lib/xlsx.js` — a **dependency-free XLSX writer**: it builds the ZIP container and the OOXML parts by hand (CRC-32, stored entries, inline strings, frozen header row, column widths, merged title row), so the app still ships with 3 runtime dependencies and works fully offline. `src/data/reportSheets.js` turns the analytics model into the 5 sheet definitions.
 
-The dataset is produced by `src/data/analytics.js`: a deterministic, seeded 30-day sample (the same numbers on every device) merged with the real Solved / Not-Solved feedback stored in this browser, so the report is never empty and never drifts from the code.
+The data is produced by `src/data/analytics.js` over **real reports only**: the Report page calls `pullFromServer({ days: 30 })` (`src/lib/store.js`), which fetches `GET /api/feedback?days=…` and `GET /api/visits?days=…` from the Express/Supabase API and caches them in `localStorage`, merged with this browser's own entries. `buildAnalytics({ scope, days })` then windows and aggregates them client-side — no seeded sample data anywhere.
 
 
 ### 4.4 File size presets (built into the checker)
@@ -294,7 +295,7 @@ Taniya/                          ← repository root (project folder name)
 │   │   ├── categories.js        12 categories (id, icon, title, short, desc, keywords)
 │   │   │                        + full solution bank + detectCategory()
 │   │   ├── report.js            Project report content, live stats, storage + design tables
-│   │   ├── analytics.js         30-day dataset, device merge, all report aggregates
+│   │   ├── analytics.js         Real-data report aggregates (12-day default window)
 │   │   ├── reportSheets.js      Analytics → 5 Excel sheet definitions (bilingual)
 │   │   └── reportExport.js      Markdown export of the written document
 │   ├── engine/

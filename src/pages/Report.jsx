@@ -1,10 +1,11 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useLang } from '../context/LanguageContext'
 import { REPORT_META } from '../data/report'
-import { buildAnalytics, RANGE_OPTIONS, SCOPES, CHART_COLORS } from '../data/analytics'
+import { buildAnalytics, RANGE_OPTIONS, REPORT_DAYS, SCOPES, CHART_COLORS } from '../data/analytics'
 import { buildReportSheets, reportFileBaseName } from '../data/reportSheets'
 import { downloadReportMarkdown } from '../data/reportExport'
 import { downloadXlsx } from '../lib/xlsx'
+import { pullFromServer } from '../lib/store'
 import {
   AreaChart, BarList, ColumnChart, DonutChart, Gauge, Legend, Sparkline, SplitBar,
 } from '../components/Charts'
@@ -62,10 +63,13 @@ const TXT = {
     topInsight: (n, total, pct, r) => `${n} is the most frequently generated problem — ${total} reports (${pct}% of all) — and ${r}% of them were solved.`,
     pendingInsight: (n, c) => `${n} has the largest pending queue: ${c} problems are still not solved.`,
     scopeAll: 'All data',
-    scopeProject: 'Project dataset',
     scopeDevice: 'This device',
-    datasetNote: 'The project dataset is a 30-day sample collected during testing. Anything you solve in this browser is added on top of it.',
+    datasetNote: 'Real reports synced from the EduSolve server, plus anything recorded in this browser.',
     deviceNote: 'Only the problems recorded in this browser are counted.',
+    syncing: 'Syncing real data from the server…',
+    synced: (n) => `Live data synced — ${n} ${n === 1 ? 'report' : 'reports'} in the window.`,
+    syncFailed: 'Could not reach the EduSolve server. Showing the last data saved on this device.',
+    refresh: 'Refresh data',
     printHint: 'Tip: use your browser’s print dialogue and choose “Save as PDF”.',
     backToTop: 'Top of report',
   },
@@ -119,10 +123,13 @@ const TXT = {
     topInsight: (n, total, pct, r) => `${n} ही सर्वाधिक वार नोंदवलेली समस्या आहे — ${total} नोंदी (एकूण ${pct}%) — आणि त्यांच्या ${r}% सोडवल्या गेल्या.`,
     pendingInsight: (n, c) => `${n} यात सर्वाधिक प्रलंबित आहे: ${c} समस्या अजून सोडवलेल्या नाहीत.`,
     scopeAll: 'सर्व माहिती',
-    scopeProject: 'प्रकल्प माहिती',
     scopeDevice: 'या डिव्हाइसवर',
-    datasetNote: 'प्रकल्प माहिती ही चाचणीच्या दरम्यान गोळा केलेली ३० दिवसांची नमुना माहिती आहे. तुम्ही या ब्राउझरमध्ये सोडवलेल्या समस्या त्यात जोडल्या जातात.',
+    datasetNote: 'EduSolve सर्व्हरवरून सिंक केलेल्या खऱ्या नोंदी, या ब्राउझरमध्ये नोंदवलेल्या नोंदींसह.',
     deviceNote: 'फक्त या ब्राउझरमध्ये नोंदवलेल्या समस्यांची गणती केली आहे.',
+    syncing: 'सर्व्हरवरून खऱ्या माहितीचे सिंक करत आहे…',
+    synced: (n) => `लाइव्ह माहिती सिंक झाली — कालावधीत ${n} नोंदी.`,
+    syncFailed: 'EduSolve सर्व्हरशी जोडणी झाली नाही. या डिव्हाइसवर जतन केलेली शेवटची माहिती दाखवत आहे.',
+    refresh: 'माहिती रीफ्रेश करा',
     printHint: 'टीप: ब्राउझरच्या प्रिंट संवादात “Save as PDF” निवडा.',
     backToTop: 'अहवालाची सुरुवात',
   },
@@ -161,10 +168,35 @@ export default function Report() {
   const { lang } = useLang()
   const t = TXT[lang] || TXT.en
   const [scope, setScope] = useState('all')
-  const [days, setDays] = useState(30)
+  const [days, setDays] = useState(REPORT_DAYS)
   const [toast, showToast] = useToast()
+  const [tick, setTick] = useState(0)
+  const [status, setStatus] = useState('loading')
 
-  const a = useMemo(() => buildAnalytics({ scope, days }), [scope, days])
+  const maxWindow = Math.max(...RANGE_OPTIONS)
+
+  useEffect(() => {
+    let alive = true
+    const run = async () => {
+      setStatus('loading')
+      const ok = await pullFromServer({ days: maxWindow })
+      if (!alive) return
+      setStatus(ok ? 'ready' : 'error')
+      setTick((n) => n + 1)
+    }
+    run()
+    const bump = () => {
+      setStatus('ready')
+      setTick((n) => n + 1)
+    }
+    window.addEventListener('edusolve:sync', bump)
+    return () => {
+      alive = false
+      window.removeEventListener('edusolve:sync', bump)
+    }
+  }, [maxWindow])
+
+  const a = useMemo(() => buildAnalytics({ scope, days }), [scope, days, tick])
   const { totals } = a
 
   const titleOf = (c) => (lang === 'mr' ? c.title.mr : c.title.en)
@@ -228,6 +260,13 @@ export default function Report() {
       : `Excel file ready — ${sheets.length} sheets.`)
   }
 
+  const refresh = async () => {
+    setStatus('loading')
+    const ok = await pullFromServer({ days: maxWindow })
+    setStatus(ok ? 'ready' : 'error')
+    setTick((n) => n + 1)
+  }
+
   return (
     <div className="report an-report">
       {/* ---------------- Slim toolbar ---------------- */}
@@ -257,6 +296,9 @@ export default function Report() {
         </div>
 
         <div className="an-toolbar-actions">
+          <button className="btn small" onClick={refresh} disabled={status === 'loading'}>
+            <Icon name="history" size={15} /> {t.refresh}
+          </button>
           <button className="btn primary small" onClick={() => window.print()}>
             <Icon name="listcheck" size={15} /> {t.print}
           </button>
@@ -273,6 +315,11 @@ export default function Report() {
 
         <p className="an-scope-note">
           <Icon name="info" size={13} /> {scope === 'device' ? t.deviceNote : t.datasetNote}
+        </p>
+
+        <p className={'an-scope-note an-sync an-sync-' + status}>
+          <Icon name={status === 'loading' ? 'history' : status === 'error' ? 'alert' : 'checkcircle'} size={13} />
+          {status === 'loading' ? t.syncing : status === 'error' ? t.syncFailed : t.synced(totals.reported)}
         </p>
       </section>
 

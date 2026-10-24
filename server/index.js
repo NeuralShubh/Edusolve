@@ -16,6 +16,19 @@ const SB = SUPABASE_URL.replace(/\/+$/, '')
 const origins = ALLOWED_ORIGINS.split(',').map((o) => o.trim()).filter(Boolean)
 const today = () => new Date().toISOString().slice(0, 10)
 
+/* Optional ?days=N window: start of day N-1 days back, in UTC. */
+function sinceIso(days) {
+  const d = new Date()
+  d.setUTCHours(0, 0, 0, 0)
+  d.setUTCDate(d.getUTCDate() - (days - 1))
+  return d.toISOString()
+}
+function clampDays(raw) {
+  const n = Number(raw)
+  if (!Number.isFinite(n) || n < 1) return 0
+  return Math.min(Math.floor(n), 366)
+}
+
 async function sb(path, { method = 'GET', body, headers = {} } = {}) {
   const res = await fetch(`${SB}/rest/v1/${path}`, {
     method,
@@ -80,8 +93,10 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (path === '/api/feedback' && req.method === 'GET') {
-      const limit = Math.min(Number(url.searchParams.get('limit')) || 300, 500)
-      const r = await sb(`feedback?select=id,title,verdict,source,created_at&order=created_at.desc&limit=${limit}`)
+      const limit = Math.min(Number(url.searchParams.get('limit')) || 300, 1000)
+      const days = clampDays(url.searchParams.get('days'))
+      const window = days ? `&created_at=gte.${encodeURIComponent(sinceIso(days))}` : ''
+      const r = await sb(`feedback?select=id,title,verdict,source,created_at&order=created_at.desc&limit=${limit}${window}`)
       if (!r.ok) return send(res, 500, { error: r.text || 'Supabase error' })
       return send(res, 200, (r.json || []).map((row) => ({
         id: row.id,
@@ -122,7 +137,9 @@ const server = http.createServer(async (req, res) => {
     }
 
     if (path === '/api/visits' && req.method === 'GET') {
-      const r = await sb('visits_daily?select=day,count')
+      const days = clampDays(url.searchParams.get('days'))
+      const window = days ? `&day=gte.${sinceIso(days).slice(0, 10)}` : ''
+      const r = await sb(`visits_daily?select=day,count${window}`)
       if (!r.ok) return send(res, 500, { error: r.text || 'Supabase error' })
       const out = {}
       for (const row of r.json || []) out[row.day] = row.count

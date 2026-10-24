@@ -385,26 +385,30 @@ Computed live from `CATEGORIES` and `SOLUTIONS` — it can never drift from the 
 
 ## 12. `src/data/analytics.js` — the report data engine
 
+Aggregates **real recorded data** — reports synced from the EduSolve API plus entries recorded in the current browser. There is no generated sample dataset; every number on the page comes from an actual report.
+
 ### Exports
 
 | Export | Type | Notes |
 |---|---|---|
-| `REPORT_DAYS` | `number` | `30` — the length of the generated dataset |
-| `RANGE_OPTIONS` | `number[]` | `[7, 14, 30]` — the time windows offered on the page |
-| `SCOPES` | `{ id, en, mr }[]` | `all`, `project`, `device` |
+| `REPORT_DAYS` | `number` | `12` — the default window (the last 12 days, including today) |
+| `RANGE_OPTIONS` | `number[]` | `[7, 12, 30]` — the time windows offered on the page |
+| `SCOPES` | `{ id, en, mr }[]` | `all` (everything known here), `device` (this browser only) |
 | `SOURCES` | `{ id, en, mr }[]` | `solver`, `dashboard` |
-| `CATEGORY_PROFILE` | `object` | Per-category `weight` (how often it comes up) and `solve` (share solved) |
 | `CHART_COLORS` | `object` | `solved` green, `pending` amber, `accent` violet, `neutral` grey |
-| `buildProjectDataset(now?, days?)` | `Array<Row>` | Deterministic seeded 30-day sample |
-| `readDeviceData()` | `object` | Reads feedback, visits, recents and checklist from `localStorage` |
-| `buildAnalytics({ scope, days, now, device })` | `object` | The whole report model |
+| `readDeviceData()` | `object` | Reads the synced feedback, this browser's own entries, visits, recents and checklist from `localStorage` — returns `{ allRows, localRows, visits, opened, checks }` |
+| `buildAnalytics({ scope, days, now, device })` | `object` | The whole report model, windowed to the last `days` days |
 | `matchCategory(text)` | `string` | Maps a free-text title back to a category id |
 | `dayKey(date)` / `shortDayLabel(key)` / `weekdayLabel(key, lang)` | `string` | Date helpers |
+
+### Data flow
+
+`src/pages/Report.jsx` calls `pullFromServer({ days: 30 })` from `src/lib/store.js` on mount (and on the Refresh button), which fetches `GET /api/feedback?days=…` and `GET /api/visits?days=…` and caches the result in `localStorage`. `buildAnalytics()` then filters to the selected window entirely client-side, so switching between 7 / 12 / 30 days never re-fetches.
 
 ### `buildAnalytics()` — the report model
 ```ts
 {
-  scope: 'all' | 'project' | 'device'
+  scope: 'all' | 'device'
   days: number
   generatedAt: number
   totals: {
@@ -419,9 +423,9 @@ Computed live from `CATEGORIES` and `SOLUTIONS` — it can never drift from the 
   sources: { id, en, mr, count, solved, pending, rate }[]
   weekly: { label, from, to, solved, pending, total, rate }[]
   cumulative: { key, label, value }[]
-  hasDeviceData: boolean
-  deviceCount: number
-  projectCount: number
+  hasData: boolean
+  totalRows: number         // rows in the selected scope
+  deviceCount: number       // rows recorded in this browser
 }
 ```
 

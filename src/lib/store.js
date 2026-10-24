@@ -1,4 +1,5 @@
 const FB = 'edusolve_feedback'
+const FB_LOCAL = 'edusolve_feedback_local'
 const SESSION = 'edusolve_admin'
 const FEATURED = 'edusolve_featured'
 const VISITS = 'edusolve_visits_daily'
@@ -12,6 +13,20 @@ function loadJSON(key, fallback) {
   try { const v = JSON.parse(localStorage.getItem(key)); return v ?? fallback } catch { return fallback }
 }
 function saveJSON(key, val) { try { localStorage.setItem(key, JSON.stringify(val)) } catch {} }
+
+/* Server rows and this browser's own rows can describe the same report —
+   keep only one entry per (title, time, verdict). */
+function dedupeFeedback(list) {
+  const seen = new Set()
+  const out = []
+  for (const row of Array.isArray(list) ? list : []) {
+    const key = `${row.title}|${row.at}|${row.verdict}`
+    if (seen.has(key)) continue
+    seen.add(key)
+    out.push(row)
+  }
+  return out
+}
 
 async function request(path, options) {
   try {
@@ -32,17 +47,22 @@ export function adminLogout() { localStorage.removeItem(SESSION) }
 export function adminName() { const s = loadJSON(SESSION, null); return s ? s.name : '' }
 
 export function addFeedback({ title, verdict, source, at }, { localOnly = false } = {}) {
-  const list = loadJSON(FB, [])
   const entry = { id: Date.now() + Math.random(), title, verdict, source, at: at || Date.now() }
+  const local = loadJSON(FB_LOCAL, [])
+  local.unshift(entry)
+  saveJSON(FB_LOCAL, local.slice(0, 300))
+  const list = loadJSON(FB, [])
   list.unshift(entry)
-  saveJSON(FB, list.slice(0, 300))
+  saveJSON(FB, dedupeFeedback(list).slice(0, 300))
   if (!localOnly) {
     request('/api/feedback', { method: 'POST', body: JSON.stringify({ title, verdict, source, at: entry.at }) })
   }
 }
 export function getFeedback() { return loadJSON(FB, []) }
+export function getLocalFeedback() { return loadJSON(FB_LOCAL, []) }
 export function clearFeedback() {
   saveJSON(FB, [])
+  saveJSON(FB_LOCAL, [])
   request('/api/feedback', { method: 'DELETE' })
 }
 
@@ -64,16 +84,19 @@ export function trackVisit() {
 }
 export function getVisits() { return loadJSON(VISITS, {}) }
 
-export async function pullFromServer() {
+export async function pullFromServer({ days } = {}) {
+  const q = days ? `?days=${Math.max(1, Math.min(Math.floor(days), 366))}` : ''
   const [feedback, visits, featured] = await Promise.all([
-    request('/api/feedback'),
-    request('/api/visits'),
+    request(`/api/feedback${q}`),
+    request(`/api/visits${q}`),
     request('/api/featured'),
   ])
-  if (Array.isArray(feedback)) saveJSON(FB, feedback)
+  const ok = Array.isArray(feedback)
+  if (ok) saveJSON(FB, dedupeFeedback([...feedback, ...loadJSON(FB_LOCAL, [])]).slice(0, 300))
   if (visits && typeof visits === 'object') saveJSON(VISITS, visits)
   if (Array.isArray(featured)) saveJSON(FEATURED, featured)
   if (typeof window !== 'undefined') window.dispatchEvent(new Event('edusolve:sync'))
+  return ok
 }
 
 export function last7Days() {
