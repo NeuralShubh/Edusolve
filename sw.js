@@ -1,5 +1,5 @@
 /* EduSolve AI service worker: offline-first app shell, runtime caching. */
-const CACHE = 'edusolve-v5'
+const CACHE = 'edusolve-v6'
 const CORE = ['./', './index.html', './manifest.webmanifest']
 
 self.addEventListener('install', (event) => {
