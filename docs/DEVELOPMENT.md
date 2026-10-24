@@ -179,7 +179,7 @@ The on-screen report is **graphical**. Two files drive it:
 | `src/pages/Report.jsx` | The page itself — syncs real data from the API, then renders KPI cards, panels, tables, controls and the bilingual labels |
 | `src/data/report.js` | The long written document (`REPORT_SECTIONS`), still exportable as Markdown |
 
-**The numbers are real.** Reports come from the EduSolve API (Supabase `feedback` + `visits_daily` tables) and are cached in `localStorage` (`edusolve_feedback`, merged with this browser's own `edusolve_feedback_local` ledger). The report window defaults to the last **12 days**; the server accepts `?days=N` on `GET /api/feedback` and `GET /api/visits` to limit what it sends, and `buildAnalytics()` slices the cached data client-side for the 7 / 12 / 30-day toggles. There is no seeded sample dataset anymore.
+**The numbers are real.** Reports come from the EduSolve API (Supabase `feedback` + `visits_daily` tables) and are cached in `localStorage` (`edusolve_feedback`, merged with this browser's own `edusolve_feedback_local` ledger). The report window is **fixed at the last 15 days** (15 days ago → today, `REPORT_DAYS = 15`); the server accepts `?days=N` on `GET /api/feedback` and `GET /api/visits` to limit what it sends, and `buildAnalytics()` slices the cached data client-side to that window. There is no seeded sample dataset anymore.
 
 **To add a chart**, drop a new component in `src/components/Charts.jsx` (or reuse an existing one) and add a `<Panel>` to `src/pages/Report.jsx`. Every chart measures its own container with `useWidth()`, so no fixed pixel width is needed.
 

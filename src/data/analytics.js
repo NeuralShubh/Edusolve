@@ -2,11 +2,11 @@
 // Aggregates the real problem reports stored in this browser (synced from the
 // EduSolve API) into everything the report charts need.
 // No generated sample data — every number comes from an actual report.
+// The window is fixed: the last 15 days, including today.
 
 import { CATEGORIES } from './categories'
 
-export const REPORT_DAYS = 12
-export const RANGE_OPTIONS = [7, 12, 30]
+export const REPORT_DAYS = 15
 
 export const SCOPES = [
   { id: 'all', en: 'All data', mr: 'सर्व माहिती' },

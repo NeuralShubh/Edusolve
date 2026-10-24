@@ -130,11 +130,11 @@ Installed, it opens like a normal app and keeps working even with a weak connect
 
 The **Project Report** tab (in the navbar, the sidebar and the bottom tab bar) holds the graphical analytics report.
 
-- **Slim toolbar at the top** — Refresh data, Print / PDF, the two downloads and the two filter switches, plus a live sync status (loading / live / offline). There is no text header; the numbers start immediately below.
+- **Slim toolbar at the top** — the data-source switch, a fixed **last 15 days** pill, Refresh data, Print / PDF and the two downloads, plus a live sync status (loading / live / offline). There is no text header; the numbers start immediately below.
 - **KPI cards** — problems reported, problems solved, problems pending, solve rate, solved per day and the most frequent problem, each with a sparkline where a trend exists.
 - **Charts** — solved vs pending (donut), solve rate (gauge), problems solved in one day (stacked columns), most frequently generated problems (ranked bars), solve rate per problem type, cumulative problems solved (area), weekly comparison and where the problems are reported from.
 - **Tables** — the pending "help desk" list and a day-wise result table with solved, pending, total and rate for every day.
-- **Data source and time window** — switch between *All data* and *This device*, and between the last 7, **12** (default) or 30 days. Everything re-computes instantly.
+- **Data source and time window** — switch between *All data* and *This device*. The window is fixed at the **last 15 days** (15 days ago up to today); every chart, card and table covers exactly that period.
 - **Print / Save as PDF** — the print button opens your browser's print dialog with a clean A4 layout: the navigation is hidden and the charts are laid out two per row. Choose "Save as PDF" as the destination.
 - **Download Excel (.xlsx)** — saves the current report as a real Excel workbook with five sheets: **Summary**, **Daily**, **By Problem Type**, **By Source** and **Weekly**. The numbers stay numeric (so you can sum them in Excel), the header row is frozen and every label follows the language you are viewing. **Full document (.md)** downloads the full written project document.
 - Everything switches between English and Marathi with the global toggle. The report shows real problem reports — the latest ones are pulled from the EduSolve server when the page opens, and Solved / Not-Solved answers you give are sent there too so everyone's report improves.

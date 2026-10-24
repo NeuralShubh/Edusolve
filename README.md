@@ -148,7 +148,7 @@ Pick a tool from the **tab switcher** at the top of the page — six tabs, nothi
 
 A **graphical** analytics report built into the app, driven by **real recorded data** — every number on the page is a chart, a KPI card or a table built from actual problem reports, never from a sample dataset.
 
-The page opens with a **slim toolbar** (Refresh, Print, the two downloads and the two switches) — there is no long text header, so the report starts straight with the numbers. On open it syncs live data from the EduSolve API and shows a colour-coded sync status (loading / live / offline).
+The page opens with a **slim toolbar** (the data-source switch, a fixed "last 15 days" pill, Refresh, Print and the two downloads) — there is no long text header, so the report starts straight with the numbers. On open it syncs live data from the EduSolve API and shows a colour-coded sync status (loading / live / offline). The report only ever covers **the last 15 days, up to today**.
 
 | Chart / card | What it shows |
 |---|---|
@@ -167,7 +167,7 @@ The page opens with a **slim toolbar** (Refresh, Print, the two downloads and th
 | Control | What it does |
 |---|---|
 | **Data source** | `All data` (everything synced from the server + this browser) · `This device` (only what you recorded here) |
-| **Time window** | Last 7, **12** or 30 days — every chart, card and table re-computes instantly (12 is the default) |
+| **Time window** | Fixed at the **last 15 days** (15 days ago → today) — shown as a pill in the toolbar, not a switcher |
 | **Refresh data** | Re-pulls the latest reports and visits from the EduSolve API |
 | **Print / Save as PDF** | A dedicated `@media print` stylesheet strips the navbar, sidebar and tab bar and lays the charts out on A4 |
 | **Download Excel (.xlsx)** | Downloads the current report as a real Excel workbook with 5 sheets — `Summary`, `Daily`, `By Problem Type`, `By Source`, `Weekly`. Numbers stay numeric so they can be summed, columns are sized, the header row is frozen and every label is in the language you are viewing. |
@@ -295,7 +295,7 @@ Taniya/                          ← repository root (project folder name)
 │   │   ├── categories.js        12 categories (id, icon, title, short, desc, keywords)
 │   │   │                        + full solution bank + detectCategory()
 │   │   ├── report.js            Project report content, live stats, storage + design tables
-│   │   ├── analytics.js         Real-data report aggregates (12-day default window)
+│   │   ├── analytics.js         Real-data report aggregates (fixed 15-day window)
 │   │   ├── reportSheets.js      Analytics → 5 Excel sheet definitions (bilingual)
 │   │   └── reportExport.js      Markdown export of the written document
 │   ├── engine/

@@ -391,19 +391,18 @@ Aggregates **real recorded data** — reports synced from the EduSolve API plus 
 
 | Export | Type | Notes |
 |---|---|---|
-| `REPORT_DAYS` | `number` | `12` — the default window (the last 12 days, including today) |
-| `RANGE_OPTIONS` | `number[]` | `[7, 12, 30]` — the time windows offered on the page |
+| `REPORT_DAYS` | `number` | `15` — the fixed window (the last 15 days, including today) |
 | `SCOPES` | `{ id, en, mr }[]` | `all` (everything known here), `device` (this browser only) |
 | `SOURCES` | `{ id, en, mr }[]` | `solver`, `dashboard` |
 | `CHART_COLORS` | `object` | `solved` green, `pending` amber, `accent` violet, `neutral` grey |
 | `readDeviceData()` | `object` | Reads the synced feedback, this browser's own entries, visits, recents and checklist from `localStorage` — returns `{ allRows, localRows, visits, opened, checks }` |
-| `buildAnalytics({ scope, days, now, device })` | `object` | The whole report model, windowed to the last `days` days |
+| `buildAnalytics({ scope, days, now, device })` | `object` | The whole report model, windowed to the last `days` days (the page always passes `REPORT_DAYS`) |
 | `matchCategory(text)` | `string` | Maps a free-text title back to a category id |
 | `dayKey(date)` / `shortDayLabel(key)` / `weekdayLabel(key, lang)` | `string` | Date helpers |
 
 ### Data flow
 
-`src/pages/Report.jsx` calls `pullFromServer({ days: 30 })` from `src/lib/store.js` on mount (and on the Refresh button), which fetches `GET /api/feedback?days=…` and `GET /api/visits?days=…` and caches the result in `localStorage`. `buildAnalytics()` then filters to the selected window entirely client-side, so switching between 7 / 12 / 30 days never re-fetches.
+`src/pages/Report.jsx` calls `pullFromServer({ days: 15 })` from `src/lib/store.js` on mount (and on the Refresh button), which fetches `GET /api/feedback?days=15` and `GET /api/visits?days=15` and caches the result in `localStorage`. `buildAnalytics()` then filters to the 15-day window (15 days ago → today) entirely client-side.
 
 ### `buildAnalytics()` — the report model
 ```ts

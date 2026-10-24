@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useLang } from '../context/LanguageContext'
 import { REPORT_META } from '../data/report'
-import { buildAnalytics, RANGE_OPTIONS, REPORT_DAYS, SCOPES, CHART_COLORS } from '../data/analytics'
+import { buildAnalytics, REPORT_DAYS, SCOPES, CHART_COLORS } from '../data/analytics'
 import { buildReportSheets, reportFileBaseName } from '../data/reportSheets'
 import { downloadReportMarkdown } from '../data/reportExport'
 import { downloadXlsx } from '../lib/xlsx'
@@ -22,7 +22,6 @@ const TXT = {
     repo: 'Repository',
     source: 'Data source',
     window: 'Time window',
-    days: (n) => `${n} days`,
     lastDays: (n) => `last ${n} days`,
     reported: 'Problems reported',
     solved: 'Problems solved',
@@ -82,7 +81,6 @@ const TXT = {
     repo: 'रिपॉझिटरी',
     source: 'माहितीचा स्रोत',
     window: 'कालावधी',
-    days: (n) => `${n} दिवस`,
     lastDays: (n) => `गेल्या ${n} दिवस`,
     reported: 'नोंदवलेल्या समस्या',
     solved: 'सोडवलेल्या समस्या',
@@ -168,18 +166,15 @@ export default function Report() {
   const { lang } = useLang()
   const t = TXT[lang] || TXT.en
   const [scope, setScope] = useState('all')
-  const [days, setDays] = useState(REPORT_DAYS)
   const [toast, showToast] = useToast()
   const [tick, setTick] = useState(0)
   const [status, setStatus] = useState('loading')
-
-  const maxWindow = Math.max(...RANGE_OPTIONS)
 
   useEffect(() => {
     let alive = true
     const run = async () => {
       setStatus('loading')
-      const ok = await pullFromServer({ days: maxWindow })
+      const ok = await pullFromServer({ days: REPORT_DAYS })
       if (!alive) return
       setStatus(ok ? 'ready' : 'error')
       setTick((n) => n + 1)
@@ -194,9 +189,9 @@ export default function Report() {
       alive = false
       window.removeEventListener('edusolve:sync', bump)
     }
-  }, [maxWindow])
+  }, [])
 
-  const a = useMemo(() => buildAnalytics({ scope, days }), [scope, days, tick])
+  const a = useMemo(() => buildAnalytics({ scope, days: REPORT_DAYS }), [scope, tick])
   const { totals } = a
 
   const titleOf = (c) => (lang === 'mr' ? c.title.mr : c.title.en)
@@ -262,7 +257,7 @@ export default function Report() {
 
   const refresh = async () => {
     setStatus('loading')
-    const ok = await pullFromServer({ days: maxWindow })
+    const ok = await pullFromServer({ days: REPORT_DAYS })
     setStatus(ok ? 'ready' : 'error')
     setTick((n) => n + 1)
   }
@@ -286,12 +281,8 @@ export default function Report() {
 
         <div className="an-control">
           <span className="an-control-label">{t.window}</span>
-          <div className="an-seg">
-            {RANGE_OPTIONS.map((n) => (
-              <button key={n} className={days === n ? 'on' : ''} onClick={() => setDays(n)}>
-                {t.days(n)}
-              </button>
-            ))}
+          <div className="an-fixed-window">
+            <Icon name="calendar" size={14} /> {t.lastDays(REPORT_DAYS)}
           </div>
         </div>
 
@@ -328,14 +319,14 @@ export default function Report() {
         <Icon name="sparkles" size={18} />
         <p>
           {lang === 'mr'
-            ? `मागील ${days} दिवसांत एकूण ${totals.reported} सम्या नोंदवल्या गेल्या. यांपैकी ${totals.solved} सोडवल्या गेल्या (${totals.rate}%) आणि ${totals.pending} प्रलंबित आहेत.`
-            : `In the last ${days} days ${totals.reported} problems were reported. ${totals.solved} of them were solved (${totals.rate}%) and ${totals.pending} are still pending.`}
+            ? `मागील ${REPORT_DAYS} दिवसांत एकूण ${totals.reported} सम्या नोंदवल्या गेल्या. यांपैकी ${totals.solved} सोडवल्या गेल्या (${totals.rate}%) आणि ${totals.pending} प्रलंबित आहेत.`
+            : `In the last ${REPORT_DAYS} days ${totals.reported} problems were reported. ${totals.solved} of them were solved (${totals.rate}%) and ${totals.pending} are still pending.`}
         </p>
       </section>
 
       {/* ---------------- KPI cards ---------------- */}
       <div className="an-kpi-grid">
-        <Kpi icon="chat" label={t.reported} value={totals.reported} sub={t.lastDays(days)} />
+        <Kpi icon="chat" label={t.reported} value={totals.reported} sub={t.lastDays(REPORT_DAYS)} />
         <Kpi icon="checkcircle" label={t.solved} value={totals.solved} color={CHART_COLORS.solved}
           spark={a.daily.map((d) => d.solved)} sparkColor={CHART_COLORS.solved}
           sub={`${totals.rate}% ${lang === 'mr' ? 'दर' : 'of all reports'}`} />
