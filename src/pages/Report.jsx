@@ -63,11 +63,6 @@ const TXT = {
     pendingInsight: (n, c) => `${n} has the largest pending queue: ${c} problems are still not solved.`,
     scopeAll: 'All data',
     scopeDevice: 'This device',
-    datasetNote: 'Real reports synced from the EduSolve server, plus anything recorded in this browser.',
-    deviceNote: 'Only the problems recorded in this browser are counted.',
-    syncing: 'Syncing real data from the server…',
-    synced: (n) => `Live data synced — ${n} ${n === 1 ? 'report' : 'reports'} in the window.`,
-    syncFailed: 'Could not reach the EduSolve server. Showing the last data saved on this device.',
     refresh: 'Refresh data',
     printHint: 'Tip: use your browser’s print dialogue and choose “Save as PDF”.',
     backToTop: 'Top of report',
@@ -122,11 +117,6 @@ const TXT = {
     pendingInsight: (n, c) => `${n} यात सर्वाधिक प्रलंबित आहे: ${c} समस्या अजून सोडवलेल्या नाहीत.`,
     scopeAll: 'सर्व माहिती',
     scopeDevice: 'या डिव्हाइसवर',
-    datasetNote: 'EduSolve सर्व्हरवरून सिंक केलेल्या खऱ्या नोंदी, या ब्राउझरमध्ये नोंदवलेल्या नोंदींसह.',
-    deviceNote: 'फक्त या ब्राउझरमध्ये नोंदवलेल्या समस्यांची गणती केली आहे.',
-    syncing: 'सर्व्हरवरून खऱ्या माहितीचे सिंक करत आहे…',
-    synced: (n) => `लाइव्ह माहिती सिंक झाली — कालावधीत ${n} नोंदी.`,
-    syncFailed: 'EduSolve सर्व्हरशी जोडणी झाली नाही. या डिव्हाइसवर जतन केलेली शेवटची माहिती दाखवत आहे.',
     refresh: 'माहिती रीफ्रेश करा',
     printHint: 'टीप: ब्राउझरच्या प्रिंट संवादात “Save as PDF” निवडा.',
     backToTop: 'अहवालाची सुरुवात',
@@ -303,15 +293,6 @@ export default function Report() {
             <Icon name="cpu" size={15} /> {t.repo}
           </a>
         </div>
-
-        <p className="an-scope-note">
-          <Icon name="info" size={13} /> {scope === 'device' ? t.deviceNote : t.datasetNote}
-        </p>
-
-        <p className={'an-scope-note an-sync an-sync-' + status}>
-          <Icon name={status === 'loading' ? 'history' : status === 'error' ? 'alert' : 'checkcircle'} size={13} />
-          {status === 'loading' ? t.syncing : status === 'error' ? t.syncFailed : t.synced(totals.reported)}
-        </p>
       </section>
 
       {/* ---------------- Headline sentence ---------------- */}

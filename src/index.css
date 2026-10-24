@@ -505,15 +505,6 @@ h2.with-icon, h3.with-icon, h4.with-icon { display: flex; }
 .an-seg button:hover { color: var(--accent-deep); background: rgba(109, 40, 217, 0.07); }
 .an-seg button.on { background: var(--accent); color: #fff; box-shadow: 0 3px 9px rgba(109, 40, 217, 0.28); }
 .an-fixed-window { display: inline-flex; align-items: center; gap: 6px; padding: 7px 13px; border-radius: 999px; background: var(--accent-soft); border: 1px solid var(--accent-line); color: var(--accent-deep); font-size: 12.5px; font-weight: 700; white-space: nowrap; }
-.an-scope-note { grid-column: 1 / -1; display: flex; align-items: flex-start; gap: 8px; margin: 0; padding-top: 12px; border-top: 1px solid var(--line-soft); font-size: 12px; color: var(--muted); line-height: 1.55; }
-.an-scope-note .icon { flex: none; margin-top: 1px; color: var(--accent); }
-.an-sync { border-top: none; padding-top: 4px; }
-.an-sync-ready { color: #16a34a; }
-.an-sync-ready .icon { color: #16a34a; }
-.an-sync-loading { color: #b45309; }
-.an-sync-loading .icon { color: #b45309; }
-.an-sync-error { color: #dc2626; font-weight: 600; }
-.an-sync-error .icon { color: #dc2626; }
 .an-toolbar-actions .btn:disabled { opacity: 0.55; cursor: progress; }
 
 /* ---------- Headline ---------- */
